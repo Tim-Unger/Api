@@ -14,7 +14,7 @@ namespace Api.Controllers
     {
         public static List<Vatsim.Server> Servers { get; set; }
     }
-    
+
     [Route("/Vatsim")]
     public class VatsimDataController : Microsoft.AspNetCore.Mvc.Controller
     {
@@ -36,7 +36,6 @@ namespace Api.Controllers
         {
             Vatsim.GetStatus.Status();
 
-
             return JsonConvert.SerializeObject(Data.Servers);
         }
 
@@ -57,10 +56,10 @@ namespace Api.Controllers
             }
         }
 
-        [HttpGet("data/{type}/{callsign?}")]
+        [HttpGet("data/{type}/{callsign?}/{traffictype?}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [EnableCors("AllowOrigin")]
-        public string GetData(string Type = null, string Callsign = null)
+        public string GetData(string Type = null, string Callsign = null, string TrafficType = null)
         {
             string ConvertedType = Type.ToLower();
 
@@ -161,7 +160,6 @@ namespace Api.Controllers
                                 return JsonConvert.SerializeObject(InnerError);
                             }
                         }
-                        //Allow FIRs, Airports, etc
                         else
                         {
                             bool IsCallsign = Callsign.Contains('_');
@@ -210,14 +208,151 @@ namespace Api.Controllers
                                     return JsonConvert.SerializeObject(InnerError);
                                 }
                             }
-                            else
+                            //Should work
+                            else if (
+                                Callsign.Length <= 4
+                                && (ConvertedType == "pilots" || ConvertedType == "controllers")
+                            )
                             {
-                                VatsimError InnerError = new VatsimError()
+                                if (ConvertedType == "controllers")
                                 {
-                                    Error = "Controller not found"
-                                };
-                                return JsonConvert.SerializeObject(InnerError);
+                                    List<Json.Json.Controller> AllControllers =
+                                        new List<Json.Json.Controller>();
+
+                                    foreach (var Controller in Data.controllers)
+                                    {
+                                        //TODO remove tolower?
+                                        if (
+                                            Controller.callsign
+                                                .ToLower()
+                                                .StartsWith(Callsign.ToLower())
+                                        )
+                                        {
+                                            Json.Json.Controller AddController = Controller;
+                                            AllControllers.Add(AddController);
+                                        }
+                                    }
+
+                                    if (AllControllers.Count > 0)
+                                    {
+                                        return JsonConvert.SerializeObject(AllControllers);
+                                        AllControllers.Clear();
+                                    }
+                                    else
+                                    {
+                                        VatsimError InnerError = new VatsimError
+                                        {
+                                            Error = "No Controllers found for this Airport"
+                                        };
+
+                                        return JsonConvert.SerializeObject(InnerError);
+                                    }
+                                }
+                                else
+                                {
+                                    string[] AllowedTrafficTypes = new string[]
+                                    {
+                                        "inbounds",
+                                        "outbounds",
+                                    };
+
+                                    if (TrafficType != null)
+                                    {
+                                        string ConvertedTrafficType = TrafficType.ToLower();
+                                        List<Pilot> AllPilots = new List<Pilot>();
+
+                                        if (ConvertedTrafficType == "inbounds")
+                                        {
+                                            foreach (var Pilot in Data.pilots)
+                                            {
+                                                if (Pilot.flight_plan != null)
+                                                {
+                                                    if (
+                                                    Pilot.flight_plan.arrival
+                                                        .ToLower()
+                                                        .StartsWith(Callsign.ToLower())
+                                                )
+                                                    {
+                                                        Pilot CurrentPilot = Pilot;
+                                                        AllPilots.Add(CurrentPilot);
+                                                    }
+                                                }
+                                                
+                                            }
+
+                                            if (AllPilots.Count > 0)
+                                            {
+                                                return JsonConvert.SerializeObject(AllPilots);
+                                                AllPilots.Clear();
+                                            }
+                                            else
+                                            {
+                                                VatsimError InnerError = new VatsimError
+                                                {
+                                                    Error = "No Inbounds found"
+                                                };
+
+                                                return JsonConvert.SerializeObject(InnerError);
+                                            }
+                                        }
+                                        else if (ConvertedTrafficType == "outbounds")
+                                        {
+                                            foreach (var Pilot in Data.pilots)
+                                            {
+                                                if (Pilot.flight_plan != null)
+                                                {
+                                                    if (
+                                                    Pilot.flight_plan.departure
+                                                        .ToLower()
+                                                        .StartsWith(Callsign.ToLower())
+                                                )
+                                                    {
+                                                        Pilot CurrentPilot = Pilot;
+                                                        AllPilots.Add(CurrentPilot);
+                                                    }
+                                                }
+                                                
+                                            }
+
+                                            if (AllPilots.Count > 0)
+                                            {
+                                                return JsonConvert.SerializeObject(AllPilots);
+                                                AllPilots.Clear();
+                                            }
+                                            else
+                                            {
+                                                VatsimError InnerError = new VatsimError
+                                                {
+                                                    Error = "No Inbounds found"
+                                                };
+
+                                                return JsonConvert.SerializeObject(InnerError);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            VatsimError InnerError = new VatsimError
+                                            {
+                                                Error =
+                                                    "Traffic-Type not found, use \" inbounds \" or \" outbounds \" "
+                                            };
+                                            return JsonConvert.SerializeObject(InnerError);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        return "";
+                                    }
+                                }
                             }
+                            //else
+                            //{
+                            //    VatsimError InnerError = new VatsimError()
+                            //    {
+                            //        Error = "Controller not found"
+                            //    };
+                            //    return JsonConvert.SerializeObject(InnerError);
+                            //}
                         }
                     }
                     VatsimError Error = new VatsimError() { Error = "Type not found" };
