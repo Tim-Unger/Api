@@ -2,9 +2,19 @@
 using Microsoft.AspNetCore.Mvc;
 using Api.Controllers.Vatsim;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Cors;
+using System.Net.NetworkInformation;
+using System.Net;
+using System.Text;
+using static Json.Json;
 
 namespace Api.Controllers
 {
+    public class Data
+    {
+        public static List<Vatsim.Server> Servers { get; set; }
+    }
+    
     [Route("/Vatsim")]
     public class VatsimDataController : Microsoft.AspNetCore.Mvc.Controller
     {
@@ -24,25 +34,48 @@ namespace Api.Controllers
         [HttpGet("status")]
         public string GetStatus()
         {
-            return "";
+            Vatsim.GetStatus.Status();
+
+
+            return JsonConvert.SerializeObject(Data.Servers);
         }
 
         [HttpGet("data")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        [EnableCors("AllowOrigin")]
         public string GetaAllData()
         {
-            return Vatsim.GetData.GetVatsimData();
+            string VatsimData = null;
+            try
+            {
+                VatsimData = Vatsim.GetData.GetVatsimData();
+                return VatsimData;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
         }
 
         [HttpGet("data/{type}/{callsign?}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        [EnableCors("AllowOrigin")]
         public string GetData(string Type = null, string Callsign = null)
         {
             string ConvertedType = Type.ToLower();
 
             if (AllowedTypes.Contains(ConvertedType))
             {
-                string VatsimData = Vatsim.GetData.GetVatsimData();
+                string VatsimData = null;
+
+                try
+                {
+                    VatsimData = Vatsim.GetData.GetVatsimData();
+                }
+                catch (Exception ex)
+                {
+                    return ex.Message;
+                }
                 if (Callsign == null)
                 {
                     if (!string.IsNullOrEmpty(VatsimData))
@@ -82,7 +115,7 @@ namespace Api.Controllers
                         "atis",
                         "prefiles"
                     };
-                    if (AllowedTypesWithCallsign.Contains(ConvertedType)) 
+                    if (AllowedTypesWithCallsign.Contains(ConvertedType))
                     {
                         Rootobject Data = JsonConvert.DeserializeObject<Rootobject>(VatsimData);
                         bool IsCid = int.TryParse(Callsign, out int Cid);
@@ -90,20 +123,28 @@ namespace Api.Controllers
                         if (IsCid)
                         {
                             string Result = null;
-                            
+
                             switch (ConvertedType)
                             {
                                 case "pilots":
-                                    Result = JsonConvert.SerializeObject(Data.pilots.Where(x => x.cid == Cid));
+                                    Result = JsonConvert.SerializeObject(
+                                        Data.pilots.Where(x => x.cid == Cid)
+                                    );
                                     break;
                                 case "controllers":
-                                    Result = JsonConvert.SerializeObject(Data.controllers.Where(x => x.cid == Cid));
+                                    Result = JsonConvert.SerializeObject(
+                                        Data.controllers.Where(x => x.cid == Cid)
+                                    );
                                     break;
                                 case "atis":
-                                    Result = JsonConvert.SerializeObject(Data.atis.Where(x => x.cid == Cid));
+                                    Result = JsonConvert.SerializeObject(
+                                        Data.atis.Where(x => x.cid == Cid)
+                                    );
                                     break;
                                 case "prefiles":
-                                    Result = JsonConvert.SerializeObject(Data.prefiles.Where(x => x.cid == Cid));
+                                    Result = JsonConvert.SerializeObject(
+                                        Data.prefiles.Where(x => x.cid == Cid)
+                                    );
                                     break;
                             }
 
@@ -111,14 +152,15 @@ namespace Api.Controllers
                             {
                                 return Result;
                             }
-
                             else
                             {
-                                VatsimError InnerError = new VatsimError() { Error = "Controller not found" };
+                                VatsimError InnerError = new VatsimError()
+                                {
+                                    Error = "Controller not found"
+                                };
                                 return JsonConvert.SerializeObject(InnerError);
                             }
                         }
-
                         //Allow FIRs, Airports, etc
                         else
                         {
@@ -130,16 +172,28 @@ namespace Api.Controllers
                                 switch (ConvertedType)
                                 {
                                     case "pilots":
-                                        Result = JsonConvert.SerializeObject(Data.pilots.Where(x => x.callsign == ConvertedCallsign));
+                                        Result = JsonConvert.SerializeObject(
+                                            Data.pilots.Where(x => x.callsign == ConvertedCallsign)
+                                        );
                                         break;
                                     case "controllers":
-                                        Result = JsonConvert.SerializeObject(Data.controllers.Where(x => x.callsign == ConvertedCallsign));
+                                        Result = JsonConvert.SerializeObject(
+                                            Data.controllers.Where(
+                                                x => x.callsign == ConvertedCallsign
+                                            )
+                                        );
                                         break;
                                     case "atis":
-                                        Result = JsonConvert.SerializeObject(Data.atis.Where(x => x.callsign == ConvertedCallsign));
+                                        Result = JsonConvert.SerializeObject(
+                                            Data.atis.Where(x => x.callsign == ConvertedCallsign)
+                                        );
                                         break;
                                     case "prefiles":
-                                        Result = JsonConvert.SerializeObject(Data.prefiles.Where(x => x.callsign == ConvertedCallsign));
+                                        Result = JsonConvert.SerializeObject(
+                                            Data.prefiles.Where(
+                                                x => x.callsign == ConvertedCallsign
+                                            )
+                                        );
                                         break;
                                 }
 
@@ -147,22 +201,28 @@ namespace Api.Controllers
                                 {
                                     return Result;
                                 }
-
                                 else
                                 {
-                                    VatsimError InnerError = new VatsimError() { Error = "Controller not found" };
+                                    VatsimError InnerError = new VatsimError()
+                                    {
+                                        Error = "Controller not found"
+                                    };
                                     return JsonConvert.SerializeObject(InnerError);
                                 }
                             }
                             else
                             {
-                                VatsimError InnerError = new VatsimError() { Error = "Controller not found" };
+                                VatsimError InnerError = new VatsimError()
+                                {
+                                    Error = "Controller not found"
+                                };
                                 return JsonConvert.SerializeObject(InnerError);
                             }
                         }
                     }
                     VatsimError Error = new VatsimError() { Error = "Type not found" };
-                    return JsonConvert.SerializeObject(Error); ;
+                    return JsonConvert.SerializeObject(Error);
+                    ;
                 }
             }
             else
