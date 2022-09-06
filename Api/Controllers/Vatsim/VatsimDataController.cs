@@ -214,6 +214,8 @@ namespace Api.Controllers
                                 && (ConvertedType == "pilots" || ConvertedType == "controllers")
                             )
                             {
+                                string Result = null;
+
                                 if (ConvertedType == "controllers")
                                 {
                                     List<Json.Json.Controller> AllControllers =
@@ -268,21 +270,20 @@ namespace Api.Controllers
                                                 if (Pilot.flight_plan != null)
                                                 {
                                                     if (
-                                                    Pilot.flight_plan.arrival
-                                                        .ToLower()
-                                                        .StartsWith(Callsign.ToLower())
-                                                )
+                                                        Pilot.flight_plan.arrival
+                                                            .ToLower()
+                                                            .StartsWith(Callsign.ToLower())
+                                                    )
                                                     {
                                                         Pilot CurrentPilot = Pilot;
                                                         AllPilots.Add(CurrentPilot);
                                                     }
                                                 }
-                                                
                                             }
 
                                             if (AllPilots.Count > 0)
                                             {
-                                                return JsonConvert.SerializeObject(AllPilots);
+                                                Result = JsonConvert.SerializeObject(AllPilots);
                                                 AllPilots.Clear();
                                             }
                                             else
@@ -302,21 +303,20 @@ namespace Api.Controllers
                                                 if (Pilot.flight_plan != null)
                                                 {
                                                     if (
-                                                    Pilot.flight_plan.departure
-                                                        .ToLower()
-                                                        .StartsWith(Callsign.ToLower())
-                                                )
+                                                        Pilot.flight_plan.departure
+                                                            .ToLower()
+                                                            .StartsWith(Callsign.ToLower())
+                                                    )
                                                     {
                                                         Pilot CurrentPilot = Pilot;
                                                         AllPilots.Add(CurrentPilot);
                                                     }
                                                 }
-                                                
                                             }
 
                                             if (AllPilots.Count > 0)
                                             {
-                                                return JsonConvert.SerializeObject(AllPilots);
+                                                Result = JsonConvert.SerializeObject(AllPilots);
                                                 AllPilots.Clear();
                                             }
                                             else
@@ -338,11 +338,33 @@ namespace Api.Controllers
                                             };
                                             return JsonConvert.SerializeObject(InnerError);
                                         }
+                                        
                                     }
+
                                     else
                                     {
-                                        return "";
+                                        List<Pilot> AllPilots = new List<Pilot>();
+                                        foreach (var Pilot in Data.pilots)
+                                        {
+                                            if (Pilot.flight_plan != null)
+                                            {
+                                                if (Pilot.flight_plan.departure.ToLower().StartsWith(Callsign.ToLower()) || Pilot.flight_plan.arrival.ToLower().StartsWith(Callsign.ToLower()))
+                                                {
+                                                    Pilot CurrentPilot = Pilot;
+
+                                                    AllPilots.Add(CurrentPilot);
+                                                }
+                                            }
+                                        }
+
+                                        Result = JsonConvert.SerializeObject(AllPilots);
                                     }
+                                    
+                                }
+
+                                if (Result != null && Result != "[]")
+                                {
+                                    return Result;
                                 }
                             }
                             //else
