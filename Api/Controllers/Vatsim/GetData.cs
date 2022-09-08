@@ -34,11 +34,7 @@ namespace Api.Controllers.Vatsim
 
         public static Rootobject Deserialize()
         {
-            string Data = GetVatsimData();
-
-            var Raw = JsonConvert.DeserializeObject<Rootobject>(Data);
-            //TODO null
-            return Raw;
+            return null;
         }
     }
 }

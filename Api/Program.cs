@@ -1,12 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Api.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -25,6 +23,7 @@ app.UseReDoc(
     {
         options.DocumentTitle = "Api Documentation";
         options.SpecUrl = "/swagger/v1/swagger.json";
+        options.RoutePrefix = string.Empty;
     }
 );
 
@@ -32,7 +31,7 @@ app.UseHttpsRedirection();
 
 app.UseResponseCaching();
 
-//app.UseCors();
+app.UseCors();
 
 app.MapControllers();
 

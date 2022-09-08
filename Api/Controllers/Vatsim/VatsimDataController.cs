@@ -32,34 +32,39 @@ namespace Api.Controllers
         };
 
         [HttpGet("status")]
-        public string GetStatus()
+        public JsonResult GetStatus()
         {
             Vatsim.GetStatus.Status();
 
-            return JsonConvert.SerializeObject(Data.Servers);
+            return Json(Data.Servers);
         }
 
         [HttpGet("data")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [EnableCors("AllowOrigin")]
-        public string GetaAllData()
+        public JsonResult GetaAllData()
         {
             string VatsimData = null;
             try
             {
                 VatsimData = Vatsim.GetData.GetVatsimData();
-                return VatsimData;
+                Rootobject Raw = JsonConvert.DeserializeObject<Rootobject>(VatsimData);
+                return Json(Raw);
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                return Json(ex.Message);
             }
         }
 
         [HttpGet("data/{type}/{callsign?}/{traffictype?}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [EnableCors("AllowOrigin")]
-        public string GetData(string Type = null, string Callsign = null, string TrafficType = null)
+        public JsonResult GetData(
+            string Type = null,
+            string Callsign = null,
+            string TrafficType = null
+        )
         {
             string ConvertedType = Type.ToLower();
 
@@ -73,7 +78,7 @@ namespace Api.Controllers
                 }
                 catch (Exception ex)
                 {
-                    return ex.Message;
+                    return Json(ex.Message);
                 }
                 if (Callsign == null)
                 {
@@ -84,26 +89,26 @@ namespace Api.Controllers
                         switch (ConvertedType)
                         {
                             case "general":
-                                return JsonConvert.SerializeObject(Data.general);
+                                return Json(Data.general);
                             case "pilots":
-                                return JsonConvert.SerializeObject(Data.pilots);
+                                return Json(Data.pilots);
                             case "controllers":
-                                return JsonConvert.SerializeObject(Data.controllers);
+                                return Json(Data.controllers);
                             case "atis":
-                                return JsonConvert.SerializeObject(Data.atis);
+                                return Json(Data.atis);
                             case "servers":
-                                return JsonConvert.SerializeObject(Data.servers);
+                                return Json(Data.servers);
                             case "prefiles":
-                                return JsonConvert.SerializeObject(Data.prefiles);
+                                return Json(Data.prefiles);
                             case "facilities":
-                                return JsonConvert.SerializeObject(Data.facilities);
+                                return Json(Data.facilities);
                             case "ratings":
-                                return JsonConvert.SerializeObject(Data.ratings);
+                                return Json(Data.ratings);
                             case "pilot_ratings":
-                                return JsonConvert.SerializeObject(Data.pilot_ratings);
+                                return Json(Data.pilot_ratings);
                         }
                     }
-                    return "";
+                    return null;
                 }
                 else
                 {
@@ -123,33 +128,27 @@ namespace Api.Controllers
                         {
                             string Result = null;
 
+                            
                             switch (ConvertedType)
                             {
                                 case "pilots":
-                                    Result = JsonConvert.SerializeObject(
-                                        Data.pilots.Where(x => x.cid == Cid)
-                                    );
+                                    Result = Data.pilots.Where(x => x.cid == Cid).ToString();
+
                                     break;
                                 case "controllers":
-                                    Result = JsonConvert.SerializeObject(
-                                        Data.controllers.Where(x => x.cid == Cid)
-                                    );
+                                    Result = Data.controllers.Where(x => x.cid == Cid).ToString();
                                     break;
                                 case "atis":
-                                    Result = JsonConvert.SerializeObject(
-                                        Data.atis.Where(x => x.cid == Cid)
-                                    );
+                                    Result = Data.atis.Where(x => x.cid == Cid).ToString();
                                     break;
                                 case "prefiles":
-                                    Result = JsonConvert.SerializeObject(
-                                        Data.prefiles.Where(x => x.cid == Cid)
-                                    );
+                                    Result = Data.prefiles.Where(x => x.cid == Cid).ToString();
                                     break;
                             }
 
                             if (Result != null && Result != "[]")
                             {
-                                return Result;
+                                return Json(Result);
                             }
                             else
                             {
@@ -157,7 +156,7 @@ namespace Api.Controllers
                                 {
                                     Error = "Controller not found"
                                 };
-                                return JsonConvert.SerializeObject(InnerError);
+                                return Json(InnerError);
                             }
                         }
                         else
@@ -170,34 +169,32 @@ namespace Api.Controllers
                                 switch (ConvertedType)
                                 {
                                     case "pilots":
-                                        Result = JsonConvert.SerializeObject(
-                                            Data.pilots.Where(x => x.callsign == ConvertedCallsign)
-                                        );
+                                        Result = Data.pilots
+                                            .Where(x => x.callsign == ConvertedCallsign)
+                                            .ToString();
                                         break;
                                     case "controllers":
-                                        Result = JsonConvert.SerializeObject(
-                                            Data.controllers.Where(
-                                                x => x.callsign == ConvertedCallsign
-                                            )
-                                        );
+                                        Result = Data.controllers
+                                            .Where(x => x.callsign == ConvertedCallsign)
+                                            .ToString();
                                         break;
                                     case "atis":
-                                        Result = JsonConvert.SerializeObject(
-                                            Data.atis.Where(x => x.callsign == ConvertedCallsign)
-                                        );
+                                        Result = Data.atis
+                                            .Where(x => x.callsign == ConvertedCallsign)
+                                            .ToString();
+
                                         break;
                                     case "prefiles":
-                                        Result = JsonConvert.SerializeObject(
-                                            Data.prefiles.Where(
-                                                x => x.callsign == ConvertedCallsign
-                                            )
-                                        );
+                                        Result = Data.prefiles
+                                            .Where(x => x.callsign == ConvertedCallsign)
+                                            .ToString();
+
                                         break;
                                 }
 
                                 if (Result != null && Result != "[]")
                                 {
-                                    return Result;
+                                    return Json(Result);
                                 }
                                 else
                                 {
@@ -205,7 +202,7 @@ namespace Api.Controllers
                                     {
                                         Error = "Controller not found"
                                     };
-                                    return JsonConvert.SerializeObject(InnerError);
+                                    return Json(InnerError);
                                 }
                             }
                             //Should work
@@ -237,7 +234,7 @@ namespace Api.Controllers
 
                                     if (AllControllers.Count > 0)
                                     {
-                                        return JsonConvert.SerializeObject(AllControllers);
+                                        return Json(AllControllers);
                                         AllControllers.Clear();
                                     }
                                     else
@@ -247,7 +244,7 @@ namespace Api.Controllers
                                             Error = "No Controllers found for this Airport"
                                         };
 
-                                        return JsonConvert.SerializeObject(InnerError);
+                                        return Json(InnerError);
                                     }
                                 }
                                 else
@@ -283,7 +280,7 @@ namespace Api.Controllers
 
                                             if (AllPilots.Count > 0)
                                             {
-                                                Result = JsonConvert.SerializeObject(AllPilots);
+                                                return Json(AllPilots);
                                                 AllPilots.Clear();
                                             }
                                             else
@@ -293,7 +290,7 @@ namespace Api.Controllers
                                                     Error = "No Inbounds found"
                                                 };
 
-                                                return JsonConvert.SerializeObject(InnerError);
+                                                return Json(InnerError);
                                             }
                                         }
                                         else if (ConvertedTrafficType == "outbounds")
@@ -316,7 +313,7 @@ namespace Api.Controllers
 
                                             if (AllPilots.Count > 0)
                                             {
-                                                Result = JsonConvert.SerializeObject(AllPilots);
+                                                return Json(AllPilots);
                                                 AllPilots.Clear();
                                             }
                                             else
@@ -326,7 +323,7 @@ namespace Api.Controllers
                                                     Error = "No Inbounds found"
                                                 };
 
-                                                return JsonConvert.SerializeObject(InnerError);
+                                                return Json(InnerError);
                                             }
                                         }
                                         else
@@ -336,11 +333,9 @@ namespace Api.Controllers
                                                 Error =
                                                     "Traffic-Type not found, use \" inbounds \" or \" outbounds \" "
                                             };
-                                            return JsonConvert.SerializeObject(InnerError);
+                                            return Json(InnerError);
                                         }
-                                        
                                     }
-
                                     else
                                     {
                                         List<Pilot> AllPilots = new List<Pilot>();
@@ -348,7 +343,14 @@ namespace Api.Controllers
                                         {
                                             if (Pilot.flight_plan != null)
                                             {
-                                                if (Pilot.flight_plan.departure.ToLower().StartsWith(Callsign.ToLower()) || Pilot.flight_plan.arrival.ToLower().StartsWith(Callsign.ToLower()))
+                                                if (
+                                                    Pilot.flight_plan.departure
+                                                        .ToLower()
+                                                        .StartsWith(Callsign.ToLower())
+                                                    || Pilot.flight_plan.arrival
+                                                        .ToLower()
+                                                        .StartsWith(Callsign.ToLower())
+                                                )
                                                 {
                                                     Pilot CurrentPilot = Pilot;
 
@@ -357,15 +359,13 @@ namespace Api.Controllers
                                             }
                                         }
 
-                                        Result = JsonConvert.SerializeObject(AllPilots);
+                                        if (AllPilots != null)
+                                        {
+                                            return Json(AllPilots);
+                                        }
                                     }
-                                    
                                 }
 
-                                if (Result != null && Result != "[]")
-                                {
-                                    return Result;
-                                }
                             }
                             //else
                             //{
@@ -378,14 +378,13 @@ namespace Api.Controllers
                         }
                     }
                     VatsimError Error = new VatsimError() { Error = "Type not found" };
-                    return JsonConvert.SerializeObject(Error);
-                    ;
+                    return Json(Error);
                 }
             }
             else
             {
                 VatsimError Error = new VatsimError() { Error = "Type not found" };
-                return JsonConvert.SerializeObject(Error);
+                return Json(Error);
             }
         }
     }
