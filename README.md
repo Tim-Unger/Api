@@ -1,2 +1,2 @@
 # Api
-Doesn't work at the moment because Ionos is weird
+Will work soon :tm:
