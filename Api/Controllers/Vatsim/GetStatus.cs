@@ -1,45 +1,10 @@
-﻿using Newtonsoft.Json;
-using System.Net;
+﻿using System.Net;
 using System.Net.NetworkInformation;
-using System.Text;
+using System.Text.Json;
 using static Json.Json;
 
 namespace Api.Controllers.Vatsim
 {
-    public class Status
-    {
-        public Data data { get; set; }
-        public string[] user { get; set; }
-        public string[] metar { get; set; }
-    }
-
-    public class Data
-    {
-        public string[] v3 { get; set; }
-        public string[] transceivers { get; set; }
-        public string[] servers { get; set; }
-        public string[] servers_sweatbox { get; set; }
-        public string[] servers_all { get; set; }
-    }
-
-    public class Server
-    {
-        public string Name { get; set; }
-        public string Ip { get; set; }
-        public bool Operational { get; set; }
-        public int Connections { get; set; }
-    }
-
-    public class VatsimServer
-    {
-        public string ident { get; set; }
-        public string hostname_or_ip { get; set; }
-        public string location { get; set; }
-        public string name { get; set; }
-        public int clients_connection_allowed { get; set; }
-        public bool client_connections_allowed { get; set; }
-        public bool is_sweatbox { get; set; }
-    }
 
     public class CountServer
     {
@@ -49,72 +14,65 @@ namespace Api.Controllers.Vatsim
 
     public class GetStatus
     {
-        public static void Status()
+        public static async Task Status()
         {
-            List<string> ServerLinks = new List<string>();
-            Uri VatsimData = new Uri("https://status.vatsim.net/status.json", UriKind.Absolute);
-            WebClient wc = new WebClient();
+            List<string> serverLinks = new List<string>();
 
-            Stream DataStream = wc.OpenRead(VatsimData);
-            StreamReader ReadData = new StreamReader(DataStream);
-            string Data = ReadData.ReadToEnd();
+            HttpClient client = new HttpClient();
+            var data = await client.GetStringAsync("https://status.vatsim.net/status.json");
 
-            Status Root = JsonConvert.DeserializeObject<Status>(Data);
-            foreach (var DataUrl in Root.data.servers)
+            var root = JsonSerializer.Deserialize<Status>(data);
+
+            root!.data.servers.ToList().ForEach(x => serverLinks.Add(x));
+
+            Random random = new Random();
+
+            int randomServerIndex = random.Next(0, serverLinks.Count);
+           
+            var servers = await client.GetStringAsync(serverLinks[randomServerIndex]);
+
+            var vatsimServer = JsonSerializer.Deserialize<List<VatsimServer>>(servers);
+
+            Rootobject json = GetData.Deserialize();
+
+            List<string> serverCount = new List<string>();
+
+            foreach (var pilot in json.pilots)
             {
-                ServerLinks.Add(DataUrl);
+                serverCount.Add(pilot.server);
             }
 
-            Random R = new Random();
-
-            int ServerIndex = R.Next(0, ServerLinks.Count);
-
-            WebClient wc2 = new WebClient();
-            byte[] raw = wc.DownloadData(ServerLinks[ServerIndex]);
-            string ServersRaw = Encoding.UTF8.GetString(raw);
-
-            var VatsimServer = JsonConvert.DeserializeObject<List<VatsimServer>>(ServersRaw);
-
-            Rootobject Raw = GetData.Deserialize();
-
-            List<string> ServerCount = new List<string>();
-
-            foreach (var Pilot in Raw.pilots)
+            foreach (var controller in json.controllers)
             {
-                ServerCount.Add(Pilot.server);
+                serverCount.Add(controller.server);
             }
 
-            foreach (var Controller in Raw.controllers)
+            foreach (var atis in json.atis)
             {
-                ServerCount.Add(Controller.server);
+                serverCount.Add(atis.server);
             }
 
-            foreach (var Atis in Raw.atis)
+            var countServers = serverCount.GroupBy(x => x).Select(g => new { Value = g.Key, Count = g.Count() }).OrderByDescending(x => x.Count);
+
+            List<Server> serversList = new List<Server>();
+            bool isOperational = false;
+
+            foreach (var server in vatsimServer)
             {
-                ServerCount.Add(Atis.server);
-            }
+                Ping pingServer = new Ping();
+                PingReply pingServerReply = pingServer.Send(server.hostname_or_ip);
 
-            var CountServers = ServerCount.GroupBy(x => x).Select(g => new { Value = g.Key, Count = g.Count() }).OrderByDescending(x => x.Count);
-
-            List<Server> Servers = new List<Server>();
-            bool IsOperational = false;
-
-            foreach (var Server in VatsimServer)
-            {
-                Ping PingServer = new Ping();
-                PingReply PingServerReply = PingServer.Send(Server.hostname_or_ip);
-
-                if (PingServerReply.Status == IPStatus.Success)
+                if (pingServerReply.Status == IPStatus.Success)
                 {
-                    IsOperational = true;
+                    isOperational = true;
                 }
 
-                foreach (var CurrentServer in CountServers)
+                foreach (var currentServer in countServers)
                 {
-                    if (CurrentServer.Value == Server.name)
+                    if (currentServer.Value == server.name)
                     {
-                        Server NewServer = new Server { Name = Server.name, Ip = Server.hostname_or_ip, Operational = IsOperational, Connections = CurrentServer.Count};
-                        Servers.Add(NewServer);
+                        Server NewServer = new Server { Name = server.name, Ip = server.hostname_or_ip, Operational = isOperational, Connections = currentServer.Count};
+                        serversList.Add(NewServer);
                         break;
                     }
                 }
@@ -122,7 +80,7 @@ namespace Api.Controllers.Vatsim
             }
 
 
-            Controllers.Data.Servers = Servers;
+            Controllers.Data.Servers = serversList;
         }
     }
 }

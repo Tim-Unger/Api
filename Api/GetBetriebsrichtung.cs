@@ -41,7 +41,7 @@ namespace Api
 
             else
             {
-                //TOD fix
+                //TODO fix
                 foreach (var ListItem in NodeList)
                 {
                     if (ListItem.Contains(".svg"))

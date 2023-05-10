@@ -7,23 +7,25 @@ using Microsoft.AspNetCore.Cors;
 
 namespace Api.Controllers
 {
-    [Route("Betriebsrichtung")]
+    [Route("api")]
     [ApiController]
     public class BetriebsrichtungJson
     {
-        public string Betriebsrichtung { get; set; }
+        public string? Betriebsrichtung { get; set; }
     }
+
     public class BetriebsrichtungController : Microsoft.AspNetCore.Mvc.Controller
     {
         [HttpGet("/betriebsrichtung")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [EnableCors("AllowOrigin")]
         public JsonResult Betriebsrichtung()
         {
-            string Br = GetBetriebsrichtung.Betriebsrichtung();
+            string br = GetBetriebsrichtung.Betriebsrichtung();
 
             BetriebsrichtungJson ReturnBetriebsrichtung = new BetriebsrichtungJson
             {
-                Betriebsrichtung = Br
+                Betriebsrichtung = br
             };
             return Json(ReturnBetriebsrichtung);
         }

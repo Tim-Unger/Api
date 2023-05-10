@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Api.Controllers.Vatsim;
-using Newtonsoft.Json;
 using Microsoft.AspNetCore.Cors;
 using System.Net.NetworkInformation;
 using System.Net;
-using System.Text;
+using System.Text.Json;
 using static Json.Json;
+using System.Data;
+using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace Api.Controllers
 {
@@ -15,7 +17,7 @@ namespace Api.Controllers
         public static List<Vatsim.Server> Servers { get; set; }
     }
 
-    [Route("/Vatsim")]
+    [Route("api")]
     public class VatsimDataController : Microsoft.AspNetCore.Mvc.Controller
     {
         List<string> AllowedTypes = new List<string>
@@ -31,7 +33,7 @@ namespace Api.Controllers
             "pilot_ratings"
         };
 
-        [HttpGet("status")]
+        [HttpGet("/vatsim/status")]
         public JsonResult GetStatus()
         {
             Vatsim.GetStatus.Status();
@@ -39,353 +41,187 @@ namespace Api.Controllers
             return Json(Data.Servers);
         }
 
-        [HttpGet("data")]
+        [HttpGet("/vatsim/data")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [EnableCors("AllowOrigin")]
         public JsonResult GetaAllData()
         {
-            string VatsimData = null;
             try
             {
-                VatsimData = Vatsim.GetData.GetVatsimData();
-                Rootobject Raw = JsonConvert.DeserializeObject<Rootobject>(VatsimData);
-                return Json(Raw);
+                return Json(JsonSerializer.Deserialize<Rootobject>(Vatsim.GetData.GetVatsimData().Result));
             }
+
             catch (Exception ex)
             {
                 return Json(ex.Message);
             }
         }
 
-        [HttpGet("data/{type}/{callsign?}/{traffictype?}")]
+        [HttpGet("/vatsim/data/{type}/{callsign?}/{traffictype?}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [EnableCors("AllowOrigin")]
         public JsonResult GetData(
-            string Type = null,
-            string Callsign = null,
-            string TrafficType = null
+            string type = null,
+            string callsign = null,
+            string trafficType = null
         )
         {
-            string ConvertedType = Type.ToLower();
+            JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
+            string convertedType = type.ToLower();
 
-            if (AllowedTypes.Contains(ConvertedType))
+            if (!AllowedTypes.Any(x => x == convertedType))
             {
-                string VatsimData = null;
+                return Json("Use Use on of the following types: general, pilots, controllers, atis, servers, prefiles, facilities, ratings, pilot_ratings");
+            }
 
-                try
+            string vatsimData = null;
+
+            try
+            {
+                vatsimData = Vatsim.GetData.GetVatsimData().Result;
+            }
+            catch (Exception ex)
+            {
+                return Json(ex.Message);
+            }
+
+            var data = JsonSerializer.Deserialize<Rootobject>(vatsimData)!;
+
+            if (callsign == null)
+            {
+                if (string.IsNullOrEmpty(vatsimData))
                 {
-                    VatsimData = Vatsim.GetData.GetVatsimData();
+                    return Json("Error with the Vatsim Data");
                 }
-                catch (Exception ex)
+
+                return convertedType switch
                 {
-                    return Json(ex.Message);
-                }
-                if (Callsign == null)
+                    "general" => Json(data.general),
+                    "pilots" => Json(data.pilots),
+                    "controllers" => Json(data.controllers),
+                    "atis" => Json(data.atis),
+                    "servers" => Json(data.servers),
+                    "prefiles" => Json(data.prefiles),
+                    "facilities" => Json(data.facilities),
+                    "ratings" => Json(data.ratings),
+                    "pilot_ratings" => Json(data.pilot_ratings),
+                    _ => Json("Type not recognized")
+                };
+            }
+
+            var allowedTypesWithCallsign = new string[]
                 {
-                    if (!string.IsNullOrEmpty(VatsimData))
+                    "pilots",
+                    "controllers",
+                    "atis",
+                    "prefiles"
+                };
+
+            if (!allowedTypesWithCallsign.Any(x => x == convertedType))
+            {
+                return Json("You can only use the callsign-option with the following types: pilots, controllers, atis, prefiles");
+            }
+
+            bool isCid = int.TryParse(callsign, out int cid);
+
+            if (isCid)
+            {
+                return convertedType switch
+                {
+                    "pilots" => Json(data.pilots.Where(x => x.cid == cid).ToList()),
+                    "controllers" => Json(data.controllers.Where(x => x.cid == cid).ToList()),
+                    "atis" => Json(data.atis.Where(x => x.cid == cid).ToList()),
+                    "prefiles" => Json(data.prefiles.Where(x => x.cid == cid).ToList()),
+                    _ => Json("")
+                };
+            }
+
+            bool isCallsign = callsign.Contains('_');
+            string convertedCallsign = callsign.ToUpper();
+
+            if (isCallsign)
+            {
+                return convertedType switch
+                {
+                    "pilots" => Json(data.pilots.Where(x => x.callsign == convertedCallsign).ToString()),
+                    "controllers" => Json(data.controllers.Where(x => x.callsign == convertedCallsign).ToString()),
+                    "atis" => Json(data.atis.Where(x => x.callsign == convertedCallsign).ToString()),
+                    "prefiles" => Json(data.prefiles.Where(x => x.callsign == convertedCallsign).ToString()),
+                    _ => Json("")
+                };
+            }
+
+            if (
+                callsign.Length <= 4
+                && (convertedType == "pilots" || convertedType == "controllers")
+            )
+            {
+                string result = null;
+
+                if (convertedType == "controllers")
+                {
+                    var allControllers =
+                        data.controllers.Where(
+                            x => x.callsign.ToLower()
+                            .StartsWith(callsign.ToLower()))
+                            .ToList();
+
+                    if (allControllers.Count == 0)
                     {
-                        Rootobject Data = JsonConvert.DeserializeObject<Rootobject>(VatsimData);
-
-                        switch (ConvertedType)
-                        {
-                            case "general":
-                                return Json(Data.general);
-                            case "pilots":
-                                return Json(Data.pilots);
-                            case "controllers":
-                                return Json(Data.controllers);
-                            case "atis":
-                                return Json(Data.atis);
-                            case "servers":
-                                return Json(Data.servers);
-                            case "prefiles":
-                                return Json(Data.prefiles);
-                            case "facilities":
-                                return Json(Data.facilities);
-                            case "ratings":
-                                return Json(Data.ratings);
-                            case "pilot_ratings":
-                                return Json(Data.pilot_ratings);
-                        }
+                        return Json("No controllers found");
                     }
-                    return null;
+
+                    return Json(allControllers);
                 }
-                else
+
+                var allowedTrafficTypes = new string[]
                 {
-                    string[] AllowedTypesWithCallsign = new string[]
+                "inbounds",
+                "outbounds",
+                };
+
+                if (trafficType == null)
+                {
+                    var allPilotsList = data.pilots
+                        .Where(x => x.flight_plan != null)
+                        .Where(x => x.flight_plan.departure.StartsWith(callsign.ToLower())
+                            || x.flight_plan.arrival.StartsWith(callsign.ToLower()))
+                        .ToList();
+
+                    if (allPilotsList.Count == 0)
                     {
-                        "pilots",
-                        "controllers",
-                        "atis",
-                        "prefiles"
-                    };
-                    if (AllowedTypesWithCallsign.Contains(ConvertedType))
-                    {
-                        Rootobject Data = JsonConvert.DeserializeObject<Rootobject>(VatsimData);
-                        bool IsCid = int.TryParse(Callsign, out int Cid);
-
-                        if (IsCid)
-                        {
-                            string Result = null;
-
-                            
-                            switch (ConvertedType)
-                            {
-                                case "pilots":
-                                    Result = Data.pilots.Where(x => x.cid == Cid).ToString();
-
-                                    break;
-                                case "controllers":
-                                    Result = Data.controllers.Where(x => x.cid == Cid).ToString();
-                                    break;
-                                case "atis":
-                                    Result = Data.atis.Where(x => x.cid == Cid).ToString();
-                                    break;
-                                case "prefiles":
-                                    Result = Data.prefiles.Where(x => x.cid == Cid).ToString();
-                                    break;
-                            }
-
-                            if (Result != null && Result != "[]")
-                            {
-                                return Json(Result);
-                            }
-                            else
-                            {
-                                VatsimError InnerError = new VatsimError()
-                                {
-                                    Error = "Controller not found"
-                                };
-                                return Json(InnerError);
-                            }
-                        }
-                        else
-                        {
-                            bool IsCallsign = Callsign.Contains('_');
-                            string ConvertedCallsign = Callsign.ToUpper();
-                            if (IsCallsign)
-                            {
-                                string Result = null;
-                                switch (ConvertedType)
-                                {
-                                    case "pilots":
-                                        Result = Data.pilots
-                                            .Where(x => x.callsign == ConvertedCallsign)
-                                            .ToString();
-                                        break;
-                                    case "controllers":
-                                        Result = Data.controllers
-                                            .Where(x => x.callsign == ConvertedCallsign)
-                                            .ToString();
-                                        break;
-                                    case "atis":
-                                        Result = Data.atis
-                                            .Where(x => x.callsign == ConvertedCallsign)
-                                            .ToString();
-
-                                        break;
-                                    case "prefiles":
-                                        Result = Data.prefiles
-                                            .Where(x => x.callsign == ConvertedCallsign)
-                                            .ToString();
-
-                                        break;
-                                }
-
-                                if (Result != null && Result != "[]")
-                                {
-                                    return Json(Result);
-                                }
-                                else
-                                {
-                                    VatsimError InnerError = new VatsimError()
-                                    {
-                                        Error = "Controller not found"
-                                    };
-                                    return Json(InnerError);
-                                }
-                            }
-                            //Should work
-                            else if (
-                                Callsign.Length <= 4
-                                && (ConvertedType == "pilots" || ConvertedType == "controllers")
-                            )
-                            {
-                                string Result = null;
-
-                                if (ConvertedType == "controllers")
-                                {
-                                    List<Json.Json.Controller> AllControllers =
-                                        new List<Json.Json.Controller>();
-
-                                    foreach (var Controller in Data.controllers)
-                                    {
-                                        //TODO remove tolower?
-                                        if (
-                                            Controller.callsign
-                                                .ToLower()
-                                                .StartsWith(Callsign.ToLower())
-                                        )
-                                        {
-                                            Json.Json.Controller AddController = Controller;
-                                            AllControllers.Add(AddController);
-                                        }
-                                    }
-
-                                    if (AllControllers.Count > 0)
-                                    {
-                                        return Json(AllControllers);
-                                        AllControllers.Clear();
-                                    }
-                                    else
-                                    {
-                                        VatsimError InnerError = new VatsimError
-                                        {
-                                            Error = "No Controllers found for this Airport"
-                                        };
-
-                                        return Json(InnerError);
-                                    }
-                                }
-                                else
-                                {
-                                    string[] AllowedTrafficTypes = new string[]
-                                    {
-                                        "inbounds",
-                                        "outbounds",
-                                    };
-
-                                    if (TrafficType != null)
-                                    {
-                                        string ConvertedTrafficType = TrafficType.ToLower();
-                                        List<Pilot> AllPilots = new List<Pilot>();
-
-                                        if (ConvertedTrafficType == "inbounds")
-                                        {
-                                            foreach (var Pilot in Data.pilots)
-                                            {
-                                                if (Pilot.flight_plan != null)
-                                                {
-                                                    if (
-                                                        Pilot.flight_plan.arrival
-                                                            .ToLower()
-                                                            .StartsWith(Callsign.ToLower())
-                                                    )
-                                                    {
-                                                        Pilot CurrentPilot = Pilot;
-                                                        AllPilots.Add(CurrentPilot);
-                                                    }
-                                                }
-                                            }
-
-                                            if (AllPilots.Count > 0)
-                                            {
-                                                return Json(AllPilots);
-                                                AllPilots.Clear();
-                                            }
-                                            else
-                                            {
-                                                VatsimError InnerError = new VatsimError
-                                                {
-                                                    Error = "No Inbounds found"
-                                                };
-
-                                                return Json(InnerError);
-                                            }
-                                        }
-                                        else if (ConvertedTrafficType == "outbounds")
-                                        {
-                                            foreach (var Pilot in Data.pilots)
-                                            {
-                                                if (Pilot.flight_plan != null)
-                                                {
-                                                    if (
-                                                        Pilot.flight_plan.departure
-                                                            .ToLower()
-                                                            .StartsWith(Callsign.ToLower())
-                                                    )
-                                                    {
-                                                        Pilot CurrentPilot = Pilot;
-                                                        AllPilots.Add(CurrentPilot);
-                                                    }
-                                                }
-                                            }
-
-                                            if (AllPilots.Count > 0)
-                                            {
-                                                return Json(AllPilots);
-                                                AllPilots.Clear();
-                                            }
-                                            else
-                                            {
-                                                VatsimError InnerError = new VatsimError
-                                                {
-                                                    Error = "No Inbounds found"
-                                                };
-
-                                                return Json(InnerError);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            VatsimError InnerError = new VatsimError
-                                            {
-                                                Error =
-                                                    "Traffic-Type not found, use \" inbounds \" or \" outbounds \" "
-                                            };
-                                            return Json(InnerError);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        List<Pilot> AllPilots = new List<Pilot>();
-                                        foreach (var Pilot in Data.pilots)
-                                        {
-                                            if (Pilot.flight_plan != null)
-                                            {
-                                                if (
-                                                    Pilot.flight_plan.departure
-                                                        .ToLower()
-                                                        .StartsWith(Callsign.ToLower())
-                                                    || Pilot.flight_plan.arrival
-                                                        .ToLower()
-                                                        .StartsWith(Callsign.ToLower())
-                                                )
-                                                {
-                                                    Pilot CurrentPilot = Pilot;
-
-                                                    AllPilots.Add(CurrentPilot);
-                                                }
-                                            }
-                                        }
-
-                                        if (AllPilots != null)
-                                        {
-                                            return Json(AllPilots);
-                                        }
-                                    }
-                                }
-
-                            }
-                            //else
-                            //{
-                            //    VatsimError InnerError = new VatsimError()
-                            //    {
-                            //        Error = "Controller not found"
-                            //    };
-                            //    return JsonConvert.SerializeObject(InnerError);
-                            //}
-                        }
+                        return Json("No Pilots found");
                     }
-                    VatsimError Error = new VatsimError() { Error = "Type not found" };
-                    return Json(Error);
+
+                    return Json(allPilotsList);
                 }
             }
-            else
+
+            string convertedTrafficType = trafficType.ToLower();
+            var allPilots = new List<Pilot>();
+
+            if (convertedTrafficType == "inbounds")
             {
-                VatsimError Error = new VatsimError() { Error = "Type not found" };
-                return Json(Error);
+                allPilots = data.pilots.Where(x => x.flight_plan != null)
+                    .Where(x => x.flight_plan.arrival.ToLower().StartsWith(callsign.ToLower()))
+                    .ToList();
+
+                if (allPilots.Count == 0)
+                {
+                    return Json("No Pilots inbound to this airport found");
+                }
+
+                return Json(allPilots);
             }
+
+            allPilots = data.pilots.Where(x => x.flight_plan != null).Where(x => x.flight_plan.departure.ToLower().StartsWith(callsign.ToLower())).ToList();
+
+            if(allPilots.Count == 0)
+            {
+                return Json("No Pilots outbound from this airport found");
+            }
+
+            return Json(allPilots);
         }
     }
 }
