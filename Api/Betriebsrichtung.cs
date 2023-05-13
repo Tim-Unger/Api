@@ -1,7 +1,9 @@
-﻿namespace Api
+﻿// Ignore Spelling: Betriebsrichtung Richtung
+
+namespace Api
 {
-    public class Betriebsrichtung
+    internal class Betriebsrichtung
     {
-        public string Richtung { get; set; }
+        internal string Richtung { get; set; } = "25";
     }
 }

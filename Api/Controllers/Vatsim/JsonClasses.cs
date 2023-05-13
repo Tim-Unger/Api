@@ -1,4 +1,6 @@
-﻿namespace Json
+﻿using System.Text.Json.Serialization;
+
+namespace Json
 {
     public class Json
     {
@@ -146,8 +148,10 @@
         public class Rating
         {
             public int id { get; set; }
-            public string _short { get; set; }
-            public string _long { get; set; }
+            [JsonPropertyName("short")]
+            public string shortName { get; set; }
+            [JsonPropertyName("long")]
+            public string longName { get; set; }
         }
 
         public class Pilot_Ratings

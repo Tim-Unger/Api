@@ -4,41 +4,49 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
+using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
+
 
 namespace Api.Controllers
 {
-    public class Dns
+    [Route("api")]
+    [ApiController]
+    public class TestController : Controller
     {
-        public string DnsAdapter { get; set; }
-    }
-    public class TestController : Microsoft.AspNetCore.Mvc.Controller
-    {
-        [HttpGet("/test")]
-        public JsonResult Test()
+        [HttpGet("/fizzbuzz/{numberInput?}")]
+        public string Test(string? numberInput = null)
         {
-            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
-            List<Dns> Adapters = new List<Dns>();
-            foreach (NetworkInterface adapter in adapters)
+            if(numberInput == null)
             {
+                var stringBuilder = new StringBuilder();
 
-                IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
-                IPAddressCollection dnsServers = adapterProperties.DnsAddresses;
-                if (dnsServers.Count > 0)
+                for(int i = 1; i <= 100; i++)
                 {
-                    Console.WriteLine(adapter.Description);
-                    foreach (IPAddress dns in dnsServers)
+                    var fizzBuzz = i switch
                     {
-                        Dns DnsClass = new Dns
-                        {
-                            DnsAdapter = dns.ToString()
-                        };
-                        Adapters.Add(DnsClass);
-                    }
+                        int when i % 3 == 0 && i % 5 == 0 => "FizzBuzz",
+                        int when i % 3 == 0 => "Fizz",
+                        int when i % 5 == 0 => "Buzz",
+                        _ => i.ToString()
+                    };
+
+                    stringBuilder.AppendLine(fizzBuzz);
                 }
+
+                return stringBuilder.ToString();
+            }
+            if(!int.TryParse(numberInput, out var number))
+            {
+                return "Input was not a number";
             }
 
-            return Json(Adapters);
-
+            return number switch
+            {
+                int when number % 3 == 0 && number % 5 == 0 => "FizzBuzz",
+                int when number % 3 == 0 => "Fizz",
+                int when number % 5 == 0 => "Buzz",
+                _ => number.ToString()
+            };
         }
     }
 }

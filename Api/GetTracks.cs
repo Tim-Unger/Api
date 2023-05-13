@@ -118,10 +118,10 @@ namespace Api
 
             List<string> validities = new List<string>();
 
-            string validFrom = String.Empty;
-            string validTo = String.Empty;
+            var validFrom = string.Empty;
+            var validTo = string.Empty;
 
-            string tmi = string.Empty;
+            var tmi = string.Empty;
 
             // Get the tracks and their data
             for (int i = 0; i < splitList.Count; i++)
@@ -162,9 +162,9 @@ namespace Api
                     }
                     else
                     {
-                        for (int j = 0; j < _months.Length; j++)
+                        for (var j = 0; j < _months.Length; j++)
                         {
-                            bool reached = false;
+                            var reached = false;
                             if (splitList[i].Contains(_months[j]))
                             {
                                 // Get time
@@ -249,25 +249,25 @@ namespace Api
                 List<Fix> finalRoute = new List<Fix>();
                 foreach (string point in routeCoords)
                 {
-                    if (point.Contains("/")) // If it is a coordinate
+                    if (point.Contains('/')) // If it is a coordinate
                     {
                         // Split the coordinates
-                        string[] newPoint = point.Split("/");
+                        var newPoint = point.Split('/');
 
                         // Parse lat/lon to a double value
-                        double latitude = double.Parse(newPoint[0]);
-                        double longitude = -(double.Parse(newPoint[1]));
+                        var latitude = double.Parse(newPoint[0]);
+                        var longitude = -(double.Parse(newPoint[1]));
 
-                        StringBuilder sb = new StringBuilder();
+                        var sb = new StringBuilder();
 
-                        Fix fix = new Fix(point, latitude, longitude);
+                        var fix = new Fix(point, latitude, longitude);
 
                         // Add to the final route list
                         finalRoute.Add(fix);
                     }
                     else // If it is a waypoint
                     {
-                        JArray jsonFixes = JArray.Parse(JObject.Parse(fixesDataJson)["nat_fixes"].ToString());
+                        var jsonFixes = JArray.Parse(JObject.Parse(fixesDataJson)["nat_fixes"].ToString());
 
                         try
                         {
@@ -284,7 +284,7 @@ namespace Api
                 }
 
                 // Build new track object
-                Track trackObj = new Track
+                var trackObj = new Track
                 {
                     Id = list[0][0],
                     TMI = tmi,

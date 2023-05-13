@@ -9,21 +9,25 @@ namespace Api.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class BetriebsrichtungJson
+    internal class BetriebsrichtungJson
     {
-        public string? Betriebsrichtung { get; set; }
+        internal string? Betriebsrichtung { get; set; }
     }
 
-    public class BetriebsrichtungController : Microsoft.AspNetCore.Mvc.Controller
+    internal class BetriebsrichtungController : Microsoft.AspNetCore.Mvc.Controller
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("/betriebsrichtung")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [EnableCors("AllowOrigin")]
-        public JsonResult Betriebsrichtung()
+        internal JsonResult Betriebsrichtung()
         {
             string br = GetBetriebsrichtung.Betriebsrichtung();
 
-            BetriebsrichtungJson ReturnBetriebsrichtung = new BetriebsrichtungJson
+            var ReturnBetriebsrichtung = new BetriebsrichtungJson
             {
                 Betriebsrichtung = br
             };

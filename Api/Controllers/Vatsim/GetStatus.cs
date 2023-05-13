@@ -5,37 +5,41 @@ using static Json.Json;
 
 namespace Api.Controllers.Vatsim
 {
-
-    public class CountServer
+    internal class CountServer
     {
         public string Name { get; set; }
         public int Count { get; set; }
     }
 
-    public class GetStatus
+    internal class GetStatus
     {
+        //TODO
+        /// <summary>
+        /// Get the Vatsim-Status by pinging all Servers
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public static async Task Status()
         {
-            List<string> serverLinks = new List<string>();
+            var serverLinks = new List<string>();
 
-            HttpClient client = new HttpClient();
+            var client = new HttpClient();
             var data = await client.GetStringAsync("https://status.vatsim.net/status.json");
 
             var root = JsonSerializer.Deserialize<Status>(data);
 
-            root!.data.servers.ToList().ForEach(x => serverLinks.Add(x));
+            root!.data.servers.ToList().ForEach(serverLinks.Add);
 
-            Random random = new Random();
+            var random = new Random();
 
-            int randomServerIndex = random.Next(0, serverLinks.Count);
+            var randomServerIndex = random.Next(0, serverLinks.Count);
            
             var servers = await client.GetStringAsync(serverLinks[randomServerIndex]);
 
-            var vatsimServer = JsonSerializer.Deserialize<List<VatsimServer>>(servers);
-
+            var vatsimServer = JsonSerializer.Deserialize<List<VatsimServer>>(servers) ?? throw new Exception();
             Rootobject json = GetData.Deserialize();
 
-            List<string> serverCount = new List<string>();
+            var serverCount = new List<string>();
 
             foreach (var pilot in json.pilots)
             {
@@ -54,12 +58,12 @@ namespace Api.Controllers.Vatsim
 
             var countServers = serverCount.GroupBy(x => x).Select(g => new { Value = g.Key, Count = g.Count() }).OrderByDescending(x => x.Count);
 
-            List<Server> serversList = new List<Server>();
-            bool isOperational = false;
+            var serversList = new List<Server>();
+            var isOperational = false;
 
             foreach (var server in vatsimServer)
             {
-                Ping pingServer = new Ping();
+                var pingServer = new Ping();
                 PingReply pingServerReply = pingServer.Send(server.hostname_or_ip);
 
                 if (pingServerReply.Status == IPStatus.Success)
@@ -71,14 +75,13 @@ namespace Api.Controllers.Vatsim
                 {
                     if (currentServer.Value == server.name)
                     {
-                        Server NewServer = new Server { Name = server.name, Ip = server.hostname_or_ip, Operational = isOperational, Connections = currentServer.Count};
+                        var NewServer = new Server { Name = server.name, Ip = server.hostname_or_ip, Operational = isOperational, Connections = currentServer.Count};
                         serversList.Add(NewServer);
                         break;
                     }
                 }
                 
             }
-
 
             Controllers.Data.Servers = serversList;
         }

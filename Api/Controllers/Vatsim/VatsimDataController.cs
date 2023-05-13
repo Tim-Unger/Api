@@ -18,9 +18,9 @@ namespace Api.Controllers
     }
 
     [Route("api")]
-    public class VatsimDataController : Microsoft.AspNetCore.Mvc.Controller
+    internal class VatsimDataController : Microsoft.AspNetCore.Mvc.Controller
     {
-        List<string> AllowedTypes = new List<string>
+        private static readonly List<string> AllowedTypes = new()
         {
             "general",
             "pilots",
@@ -41,6 +41,10 @@ namespace Api.Controllers
             return Json(Data.Servers);
         }
 
+        /// <summary>
+        /// Gets the entire Vatsim Data-Feed
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("/vatsim/data")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [EnableCors("AllowOrigin")]
@@ -48,7 +52,7 @@ namespace Api.Controllers
         {
             try
             {
-                return Json(JsonSerializer.Deserialize<Rootobject>(Vatsim.GetData.GetVatsimData().Result));
+                return Json(Vatsim.GetData.GetVatsimData().Result);
             }
 
             catch (Exception ex)
@@ -66,8 +70,8 @@ namespace Api.Controllers
             string trafficType = null
         )
         {
-            JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
-            string convertedType = type.ToLower();
+            var options = new JsonSerializerOptions() { WriteIndented = true };
+            var convertedType = type.ToLower();
 
             if (!AllowedTypes.Any(x => x == convertedType))
             {
@@ -122,7 +126,7 @@ namespace Api.Controllers
                 return Json("You can only use the callsign-option with the following types: pilots, controllers, atis, prefiles");
             }
 
-            bool isCid = int.TryParse(callsign, out int cid);
+            var isCid = int.TryParse(callsign, out var cid);
 
             if (isCid)
             {
@@ -136,8 +140,8 @@ namespace Api.Controllers
                 };
             }
 
-            bool isCallsign = callsign.Contains('_');
-            string convertedCallsign = callsign.ToUpper();
+            var isCallsign = callsign.Contains('_');
+            var convertedCallsign = callsign.ToUpper();
 
             if (isCallsign)
             {
@@ -197,7 +201,7 @@ namespace Api.Controllers
                 }
             }
 
-            string convertedTrafficType = trafficType.ToLower();
+            var convertedTrafficType = trafficType.ToLower();
             var allPilots = new List<Pilot>();
 
             if (convertedTrafficType == "inbounds")
