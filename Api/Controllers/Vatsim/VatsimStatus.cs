@@ -24,9 +24,8 @@
     public class Server
     {
         public string Name { get; set; }
-        public string Ip { get; set; }
         public bool Operational { get; set; }
-        public int Connections { get; set; }
+        public int? Connections { get; set; }
     }
 
     public class VatsimServer

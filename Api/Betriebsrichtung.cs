@@ -4,6 +4,6 @@ namespace Api
 {
     internal class Betriebsrichtung
     {
-        internal string Richtung { get; set; } = "25";
+        internal bool Is25 { get; set; } = true;
     }
 }

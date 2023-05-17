@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Text.Json;
 using static Json.Json;
@@ -11,79 +13,83 @@ namespace Api.Controllers.Vatsim
         public int Count { get; set; }
     }
 
-    internal class GetStatus
+    public class GetStatus : Microsoft.AspNetCore.Mvc.Controller
     {
         //TODO
         /// <summary>
         /// Get the Vatsim-Status by pinging all Servers
         /// </summary>
-        /// <returns></returns>
+        /// <returns>a JSON of all current Vatsim-Servers</returns>
         /// <exception cref="Exception"></exception>
-        public static async Task Status()
-        {
-            var serverLinks = new List<string>();
+        //public async Task<JsonResult> Status()
+        //{
+        //    var serverLinks = new List<string>();
 
-            var client = new HttpClient();
-            var data = await client.GetStringAsync("https://status.vatsim.net/status.json");
+        //    var client = new HttpClient();
+        //    var data = await client.GetStringAsync("https://status.vatsim.net/status.json");
 
-            var root = JsonSerializer.Deserialize<Status>(data);
+        //    var root = JsonSerializer.Deserialize<Status>(data);
 
-            root!.data.servers.ToList().ForEach(serverLinks.Add);
+        //    root!.data.servers.ToList().ForEach(serverLinks.Add);
 
-            var random = new Random();
+        //    var random = new Random();
 
-            var randomServerIndex = random.Next(0, serverLinks.Count);
+        //    var randomServerIndex = random.Next(0, serverLinks.Count);
            
-            var servers = await client.GetStringAsync(serverLinks[randomServerIndex]);
+        //    var servers = await client.GetStringAsync(serverLinks[randomServerIndex]);
 
-            var vatsimServer = JsonSerializer.Deserialize<List<VatsimServer>>(servers) ?? throw new Exception();
-            Rootobject json = GetData.Deserialize();
+        //    var vatsimServer = JsonSerializer.Deserialize<List<VatsimServer>>(servers) ?? throw new Exception();
 
-            var serverCount = new List<string>();
+        //    var vatsimData = await client.GetFromJsonAsync<Json.Json.VatsimData>("https://data.vatsim.net/v3/vatsim-data.json");
 
-            foreach (var pilot in json.pilots)
-            {
-                serverCount.Add(pilot.server);
-            }
+        //    if(vatsimData == null)
+        //    {
+        //        return Json("Vatsim-Data could not be read");
+        //    }
 
-            foreach (var controller in json.controllers)
-            {
-                serverCount.Add(controller.server);
-            }
+        //    var serverCountList = new List<string>();
 
-            foreach (var atis in json.atis)
-            {
-                serverCount.Add(atis.server);
-            }
+        //    vatsimData.Pilots.ForEach(x => serverCountList.Add(x.server));
+        //    vatsimData.Controllers.ForEach(x => serverCountList.Add(x.server));
+        //    vatsimData.Atis.ForEach(x => serverCountList.Add(x.server));
 
-            var countServers = serverCount.GroupBy(x => x).Select(g => new { Value = g.Key, Count = g.Count() }).OrderByDescending(x => x.Count);
+        //    //Counts how often each server appears and then sorts them by largest first
+        //    var countServers = serverCountList.GroupBy(x => x).Select(x => new { Value = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count);
 
-            var serversList = new List<Server>();
-            var isOperational = false;
+        //    var serversList = new List<Server>();
+        //    var isOperational = false;
 
-            foreach (var server in vatsimServer)
-            {
-                var pingServer = new Ping();
-                PingReply pingServerReply = pingServer.Send(server.hostname_or_ip);
 
-                if (pingServerReply.Status == IPStatus.Success)
-                {
-                    isOperational = true;
-                }
+        //    serversList.Add(new Server() { Name = "Vatsim Website", Connections = null, Operational = IsServerOperational("https://vatsim.net") });
+        //    serversList.Add(new Server() { Name = "Vatsim Forum", Connections = null, Operational = IsServerOperational("https://forum.vatsim.net") });
+        //    serversList.Add(new Server() { Name = "Vatsim Metar", Connections = null, Operational = IsServerOperational("https://metar.vatsim.net") });
+        //    serversList.Add(new Server() { Name = "Vatsim Data", Connections = null, Operational = IsServerOperational("https://status.vatsim.net/status.json") });
 
-                foreach (var currentServer in countServers)
-                {
-                    if (currentServer.Value == server.name)
-                    {
-                        var NewServer = new Server { Name = server.name, Ip = server.hostname_or_ip, Operational = isOperational, Connections = currentServer.Count};
-                        serversList.Add(NewServer);
-                        break;
-                    }
-                }
-                
-            }
+        //    foreach (var server in vatsimServer)
+        //    {
 
-            Controllers.Data.Servers = serversList;
+        //        isOperational = IsServerOperational(server.hostname_or_ip);
+
+        //        foreach (var currentServer in countServers)
+        //        {
+        //            if (currentServer.Value == server.name)
+        //            {
+        //                var NewServer = new Server { Name = server.name, Operational = isOperational, Connections = currentServer.Count};
+        //                serversList.Add(NewServer);
+        //                break;
+        //            }
+        //        }
+        //    }
+
+        //    return Json(serversList);
+        //}
+
+        private static bool IsServerOperational(string ip)
+        {
+            var pingServer = new Ping();
+            PingReply pingServerReply = pingServer.Send(ip);
+
+            return pingServerReply.Status == IPStatus.Success;
         }
     }
 }

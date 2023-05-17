@@ -4,17 +4,34 @@ namespace Json
 {
     public class Json
     {
-        public class Rootobject
+        public class VatsimData
         {
-            public General general { get; set; }
-            public Pilot[] pilots { get; set; }
-            public Controller[] controllers { get; set; }
-            public Ati[] atis { get; set; }
-            public Server[] servers { get; set; }
-            public Prefile[] prefiles { get; set; }
-            public Facility[] facilities { get; set; }
-            public Rating[] ratings { get; set; }
-            public Pilot_Ratings[] pilot_ratings { get; set; }
+            [JsonPropertyName("general")]
+            public General General { get; set; }
+
+            [JsonPropertyName("pilots")]
+            public List<Pilot> Pilots { get; set; }
+
+            [JsonPropertyName("controllers")]
+            public List<Controller> Controllers { get; set; }
+
+            [JsonPropertyName("atis")]
+            public List<Ati> Atis { get; set; }
+            
+            [JsonPropertyName("servers")]
+            public List<Server> Servers { get; set; }
+            
+            [JsonPropertyName("prefiles")]
+            public List<Prefile> Prefiles { get; set; }
+
+            [JsonPropertyName("facilities")]
+            public List<Facility> Facilities { get; set; }
+
+            [JsonPropertyName("ratings")]
+            public List<Rating> Ratings { get; set; }
+
+            [JsonPropertyName("pilot_ratings")]
+            public List<Pilot_Ratings> PilotRatings { get; set; }
         }
 
         public class General
@@ -149,9 +166,9 @@ namespace Json
         {
             public int id { get; set; }
             [JsonPropertyName("short")]
-            public string shortName { get; set; }
+            public string ShortName { get; set; }
             [JsonPropertyName("long")]
-            public string longName { get; set; }
+            public string LongName { get; set; }
         }
 
         public class Pilot_Ratings

@@ -7,7 +7,7 @@ using System.Collections;
 
 namespace Api
 {
-    internal class GetBetriebsrichtung
+    public class GetBetriebsrichtung
     {
         /// <summary>
         /// Gets the current Runway direction in EDDF

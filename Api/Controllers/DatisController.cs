@@ -7,7 +7,7 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("api")]
-    internal class DatisController : Controller
+    public class DatisController : Controller
     {
         private static readonly List<string> DAtisAirports = new()
     {
@@ -103,9 +103,30 @@ namespace Api.Controllers
             public string Datis { get; set; }
         }
 
+        /// <summary>
+        /// Get all supported D-ATIS Airports
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("/datis/airports")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public string GetAirports()
+        {
+            return string.Join(Environment.NewLine, DAtisAirports);
+        }
+
+        /// <summary>
+        /// Get the D-Atis for an American Airport
+        /// </summary>
+        /// <remarks>
+        /// Please use /datis/airports to see a list of supported airports.
+        /// Append /textonly to only get the Text of the D-ATIS
+        /// </remarks>
+        /// <param name="icao">the four or three letter ICAO of the Airport</param>
+        /// <param name="textOnly">whether you would like the D-ATIS text only</param>
+        /// <returns></returns>
         [HttpGet("/datis/{icao}/{textOnly?}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        internal async Task<JsonResult> Get(string icao, string? textOnly = null)
+        public async Task<JsonResult> Get(string icao, string? textOnly = null)
         {
             var client = new HttpClient();
 
@@ -137,13 +158,13 @@ namespace Api.Controllers
                 }
 
                 var concatAtis = await client.GetFromJsonAsync<List<DAtis>>($"https://datis.clowd.io/api/{icaoCode}");
-                
-                if(concatAtis == null)
+
+                if (concatAtis == null)
                 {
                     return Json("Error fetching D-ATIS");
                 }
 
-                if(returnTextOnly)
+                if (returnTextOnly)
                 {
                     var stringBuilder = new StringBuilder();
 
@@ -162,7 +183,7 @@ namespace Api.Controllers
 
             var atis = await client.GetFromJsonAsync<List<DAtis>>($"https://datis.clowd.io/api/{icao}");
 
-            if(atis == null || atis.Count == 0)
+            if (atis == null || atis.Count == 0)
             {
                 return Json("No D-ATIS found for your airpot");
             }

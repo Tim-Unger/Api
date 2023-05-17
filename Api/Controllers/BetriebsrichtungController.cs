@@ -14,7 +14,7 @@ namespace Api.Controllers
         internal string? Betriebsrichtung { get; set; }
     }
 
-    internal class BetriebsrichtungController : Microsoft.AspNetCore.Mvc.Controller
+    public class BetriebsrichtungController : Microsoft.AspNetCore.Mvc.Controller
     {
         /// <summary>
         /// 
@@ -25,12 +25,13 @@ namespace Api.Controllers
         [EnableCors("AllowOrigin")]
         internal JsonResult Betriebsrichtung()
         {
-            string br = GetBetriebsrichtung.Betriebsrichtung();
+            bool is25 = GetBetriebsrichtung.Betriebsrichtung() == "25";
 
-            var ReturnBetriebsrichtung = new BetriebsrichtungJson
+            var ReturnBetriebsrichtung = new Betriebsrichtung
             {
-                Betriebsrichtung = br
+                Is25 = is25
             };
+
             return Json(ReturnBetriebsrichtung);
         }
     }
