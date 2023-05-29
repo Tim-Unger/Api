@@ -1,17 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using MetarSharp;
+﻿using MetarSharp;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 using MetarSharp.Methods.Download;
-using System.Text.Json;
-using System.Security.AccessControl;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Text.RegularExpressions;
-using Api.Controllers.Metar;
-using System.Diagnostics.Metrics;
-using Swashbuckle.Examples;
-using MetarSharp.Methods.Convert.Time;
 
 namespace Api.Controllers.Metar
 {
@@ -75,9 +64,7 @@ namespace Api.Controllers.Metar
                 return Json("No ICAO provided");
             }
 
-            var metars = new List<MetarSharp.Metar>();
-
-            DownloadMetar.FromVatsimMultiple(icao).ForEach(x => metars.Add(ParseMetar.FromString(x)));
+            var metars = ParseMetar.FromList(DownloadMetar.FromVatsimMultiple(icao));
             
             var jsonResults = new List<JsonResult>();
             metars.ForEach(x => jsonResults.Add(Json(GetMetar(x))));
@@ -130,7 +117,7 @@ namespace Api.Controllers.Metar
                 return Json("No ICAO provided");
             }
 
-            MetarType metarType = type.ToLower() switch
+            var metarType = type.ToLower() switch
             {
                 "raw" or "metarraw" => MetarType.Raw,
                 "airport" => MetarType.Airport,
@@ -163,6 +150,23 @@ namespace Api.Controllers.Metar
             var resultsFiltered = jsonResults.Select(x => x.Value);
 
             return Json(resultsFiltered);
+        }
+
+        [HttpGet("/metar/{icao}/readablereport")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public string GetAndDecodeReadableReport(string icao)
+        {
+            if (icao == null)
+            {
+                return "No ICAO provided";
+            }
+
+            if (icao.Length != 4)
+            {
+                return "ICAO Length must be 4 letters";
+            }
+
+            return ParseMetar.FromString(DownloadMetar.FromVatsimSingle(icao)).ReadableReport;
         }
 
         private JsonResult GetMetarType(MetarSharp.Metar metar, MetarType metarType) => metarType switch

@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using HtmlAgilityPack;
-using System.Collections.Generic;
-using System.Linq;
-using System.Collections;
+﻿using HtmlAgilityPack;
 
 namespace Api
 {
@@ -19,10 +14,9 @@ namespace Api
             var web = new HtmlWeb();
             HtmlDocument doc = web.Load(html);
 
-            var nodeList = new List<string>();
             var nodes = doc.DocumentNode.Descendants().Where(x => x.HasClass("br-img"));
 
-            nodes.ToList().ForEach(x => nodeList.Add(x.InnerHtml));
+            var nodeList = nodes.Select(x => x.InnerHtml).ToList();
 
             if (nodeList.Count == 1)
             {

@@ -1,8 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using Api.Controllers.Airlines;
 using System.Text.RegularExpressions;
 
 namespace Api.Controllers
@@ -10,43 +6,6 @@ namespace Api.Controllers
     [Route("api")]
     public class AirlinesController : Controller
     {
-        internal class AirlineJson
-        {
-            [JsonPropertyName("id")]
-            public string Id { get; set; }
-
-            [JsonPropertyName("name")]
-            public string Name { get; set; }
-
-            [JsonPropertyName("alias")]
-            public string Alias { get; set; }
-
-            [JsonPropertyName("iata")]
-            public string Iata { get; set; }
-
-            [JsonPropertyName("icao")]
-            public string Icao { get; set; }
-
-            [JsonPropertyName("callsign")]
-            public string Callsign { get; set; }
-
-            [JsonPropertyName("country")]
-            public string Country { get; set; }
-
-            [JsonPropertyName("active")]
-            public string Active { get; set; }
-        }
-
-        internal class Airline
-        {
-            public string Name { get; set; }
-            public string Iata { get; set; }
-            public string Icao { get; set; }
-            public string Callsign { get; set; }
-            public string Country { get; set; }
-            public bool IsActive { get; set; }
-        }
-
         private enum SearchParameter
         {
             Name,
@@ -76,14 +35,17 @@ namespace Api.Controllers
         public JsonResult Get(string search)
         {
             var match = Regex.Match(search, @"(name|iata|icao|callsign|country|active)=(\w*)");
-
+            
             if (!match.Success)
             {
-               
+                return Json(
+                    "Please use one of the following search Parameters: name=, iata=, icao=, callsign=, country=, active="
+                );
             }
 
-            var airlinesJson = JsonSerializer.Deserialize<List<AirlineJson>>(
-                System.IO.File.ReadAllText(@".\airlines.json")
+            var airlinesPath = $"{Environment.CurrentDirectory}/airlines.json";
+            var airlinesJson = JsonSerializer.Deserialize<List<AirlineDTO>>(
+                System.IO.File.ReadAllText(airlinesPath)
             )!;
 
             var airlines = airlinesJson
@@ -151,9 +113,9 @@ namespace Api.Controllers
 
         private JsonResult GetByIcao(string search, List<Airline> airlines)
         {
-            if (search.Length != 4)
+            if (search.Length != 3)
             {
-                return Json("Please provide a valid four-letter ICAO-Code");
+                return Json("Please provide a valid three-letter ICAO-Code");
             }
 
             return Json(airlines.Where(x => x.Icao == search.ToUpper()).FirstOrDefault());
@@ -168,12 +130,12 @@ namespace Api.Controllers
 
         private JsonResult GetByCountry(string search, List<Airline> airlines)
         {
-            var countries = System.IO.File.ReadAllLines(@".\countries.txt").ToList();
+            var countries = System.IO.File.ReadAllLines($"{Environment.CurrentDirectory}/countries.txt").ToList();
 
             if (!countries.Any(x => x.ToLower() == search.ToLower()))
             {
                 return Json(
-                    "Please provide a valid country. see /countries for a list of all countries"
+                    "Please provide a valid country. see api.tim-u.me/countries for a list of all countries"
                 );
             }
 

@@ -5,16 +5,16 @@ using Api;
 
 namespace Api.Controllers
 {
-    public class NattrakController : Microsoft.AspNetCore.Mvc.Controller
+    public class NattrakController : Controller
     {
         [HttpGet("nattracks")]
         //https://github.com/aogden41/NAT-Tracks
-        public JsonResult GetTracks(string id = null, bool si = false)
+        public JsonResult GetTracks(string id, bool si = false)
         {
             // Return specific track
             if (id != null)
             {
-                char charID = id.ToString().ToUpper().ToCharArray()[0];
+                var charID = id.ToString().ToUpper().ToCharArray()[0];
 
                 if (si) return Json(GetNatTracks.ParseTracks(si).Where(t => t.Id == charID).FirstOrDefault());
 

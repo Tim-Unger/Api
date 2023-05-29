@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Net;
-using System.Text;
 
 namespace Api
 {
@@ -96,10 +94,10 @@ namespace Api
         public static List<Track> ParseTracks(bool isMetres = false)
         {
             // NAT tracks
-            string content = new WebClient().DownloadString(_trackUrl);
+            string content = new HttpClient().GetStringAsync(_trackUrl).Result;
 
             // String of waypoint fixes & coords
-            string fixesDataJson = new WebClient().DownloadString(_fixesJson);
+            string fixesDataJson = new HttpClient().GetStringAsync(_fixesJson).Result;
 
             // Parse string into a list of strings
             List<string> splitList = content.Split("\n").ToList();

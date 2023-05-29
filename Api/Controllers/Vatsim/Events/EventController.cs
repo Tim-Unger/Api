@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Api.Controllers.Vatsim.Events;
-using System.Text.RegularExpressions;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using System.Text.RegularExpressions;
 
 namespace Api.Controllers.Vatsim.Events
 {
@@ -9,6 +6,8 @@ namespace Api.Controllers.Vatsim.Events
     [ApiController]
     internal partial class EventController : Controller
     {
+        private static readonly Regex DateRegex = new("20[0-9][0-9]-(1[0-2]|0[0-9])-(3[0-1]|[0-2][0-9])");
+
         /// <summary>
         /// Get all current and future Vatsim-Events
         /// </summary>
@@ -107,16 +106,13 @@ namespace Api.Controllers.Vatsim.Events
                 return DateTime.UtcNow.AddDays(1);
             }
 
-            GroupCollection dateGroups = DateRegex().Match(date).Groups;
+            GroupCollection dateGroups = DateRegex.Match(date).Groups;
+            //We don't need TryParse or check the DateTime Element as the Regex only allows correct numbers that can represent a date
             var year = int.Parse(dateGroups[1].Value);
             var month = int.Parse(dateGroups[2].Value);
             var day = int.Parse(dateGroups[3].Value);
 
             return new DateTime(year, month, day);
         }
-
-        //Regex to match if a date is correct and ISO8601 compliant
-        [GeneratedRegex("20[0-9][0-9]-(1[0-2]|0[0-9])-(3[0-1]|[0-2][0-9])")]
-        private static partial Regex DateRegex();
     }
 }

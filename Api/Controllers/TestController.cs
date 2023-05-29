@@ -1,11 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
+﻿using System.Text;
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
-
 
 namespace Api.Controllers
 {
@@ -20,7 +14,7 @@ namespace Api.Controllers
             {
                 var stringBuilder = new StringBuilder();
 
-                for(int i = 1; i <= 100; i++)
+                for (var i = 1; i <= 100; i++)
                 {
                     var fizzBuzz = i switch
                     {
