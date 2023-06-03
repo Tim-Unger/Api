@@ -1,7 +1,4 @@
-﻿using System.Text;
-using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
-
-namespace Api.Controllers
+﻿namespace Api.Controllers
 {
     [Route("api")]
     [ApiController]
@@ -14,18 +11,17 @@ namespace Api.Controllers
             {
                 var stringBuilder = new StringBuilder();
 
-                for (var i = 1; i <= 100; i++)
-                {
-                    var fizzBuzz = i switch
-                    {
-                        int when i % 3 == 0 && i % 5 == 0 => "FizzBuzz",
-                        int when i % 3 == 0 => "Fizz",
-                        int when i % 5 == 0 => "Buzz",
-                        _ => i.ToString()
-                    };
-
-                    stringBuilder.AppendLine(fizzBuzz);
-                }
+                Enumerable.Range(0, 100)
+                     .ToList()
+                     .ForEach
+                        (x => stringBuilder.AppendLine(
+                            x switch
+                        {
+                            int when x % 3 == 0 && x % 5 == 0 => "FizzBuzz",
+                            int when x % 3 == 0 => "Fizz",
+                            int when x % 5 == 0 => "Buzz",
+                            _ => x.ToString()
+                        }));
 
                 return stringBuilder.ToString();
             }
@@ -41,6 +37,14 @@ namespace Api.Controllers
                 int when number % 5 == 0 => "Buzz",
                 _ => number.ToString()
             };
+        }
+
+        [HttpGet("/acars/{search}")]
+        public string Get(string search)
+        {
+            var client = new HttpClient();
+            var res = client.GetStringAsync("https://acars.adsbexchange.com/#!/1?socketid=t5nqLU8mhfIkql2yCmHm").Result;
+            return "";
         }
     }
 }

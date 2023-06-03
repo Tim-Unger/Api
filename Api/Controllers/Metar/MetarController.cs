@@ -1,6 +1,5 @@
 ﻿using MetarSharp;
-using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
-using MetarSharp.Methods.Download;
+using MetarSharp.Downloader;
 
 namespace Api.Controllers.Metar
 {
