@@ -1,14 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Api.Controllers.Vatsim;
+﻿using Api.Controllers.Vatsim;
 using Microsoft.AspNetCore.Cors;
 using System.Net.NetworkInformation;
-using System.Net;
-using System.Text.Json;
 using static Json.Json;
 using System.Data;
-using System.Runtime.CompilerServices;
-using System.Collections.Generic;
 using Server = Api.Controllers.Vatsim.Server;
 
 namespace Api.Controllers
@@ -67,7 +61,11 @@ namespace Api.Controllers
             vatsimData.Atis.ForEach(x => serverCountList.Add(x.server));
 
             //Counts how often each server appears and then sorts them by largest first
-            var countServers = serverCountList.GroupBy(x => x).Select(x => new { Value = x.Key, Count = x.Count() }).OrderByDescending(x => x.Count).ToList();
+            var countServers = serverCountList
+                                .GroupBy(x => x)
+                                .Select(x => new { Value = x.Key, Count = x.Count() })
+                                .OrderByDescending(x => x.Count)
+                                .ToList();
 
             var serversList = new List<Server>
             {
@@ -90,7 +88,7 @@ namespace Api.Controllers
             }
 
             //Adds the count of each server to the list (can't ping these servers themselves since the automatic server exists)
-            countServers.ForEach(x => serversList.Add(new Vatsim.Server() { Connections = x.Count, Name = x.Value, Operational = true }));
+            countServers.ForEach(x => serversList.Add(new Server() { Connections = x.Count, Name = x.Value, Operational = true }));
 
             return Json(serversList);
         }

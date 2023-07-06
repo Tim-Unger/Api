@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Text.Json;
-using static Json.Json;
+﻿using System.Net.NetworkInformation;
 
 namespace Api.Controllers.Vatsim
 {
