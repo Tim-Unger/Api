@@ -10,7 +10,7 @@ namespace Api.Controllers
     [Route("api")]
     public class AirlinesController : Controller
     {
-        private static readonly Regex SearchRegex = new Regex(
+        private static readonly Regex _searchRegex = new Regex(
             @"(?>(name|iata|icao|callsign|country|active)=(\w*))*(?:(?>&|$))"
         );
 
@@ -49,7 +49,7 @@ namespace Api.Controllers
         [Produces("application/json")]
         public JsonResult Get(string search)
         {
-            var matches = SearchRegex.Matches(search);
+            var matches = _searchRegex.Matches(search);
 
             if (matches.Count == 0 || !matches[0].Success)
             {
@@ -70,7 +70,7 @@ namespace Api.Controllers
         [Produces("application/json")]
         public JsonResult GetMultiple(string search) 
         {
-            var matches = SearchRegex.Matches(search);
+            var matches = _searchRegex.Matches(search);
 
             if (matches.Count == 0 || !matches[0].Success)
             {

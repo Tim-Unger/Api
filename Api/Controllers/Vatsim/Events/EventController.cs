@@ -6,7 +6,7 @@ namespace Api.Controllers.Vatsim.Events
     [ApiController]
     internal partial class EventController : Controller
     {
-        private static readonly Regex DateRegex = new("20[0-9][0-9]-(1[0-2]|0[0-9])-(3[0-1]|[0-2][0-9])");
+        private static readonly Regex _dateRegex = new("20[0-9][0-9]-(1[0-2]|0[0-9])-(3[0-1]|[0-2][0-9])");
 
         /// <summary>
         /// Get all current and future Vatsim-Events
@@ -106,7 +106,7 @@ namespace Api.Controllers.Vatsim.Events
                 return DateTime.UtcNow.AddDays(1);
             }
 
-            GroupCollection dateGroups = DateRegex.Match(date).Groups;
+            GroupCollection dateGroups = _dateRegex.Match(date).Groups;
             //We don't need TryParse or check the DateTime Element as the Regex only allows correct numbers that can represent a date
             var year = int.Parse(dateGroups[1].Value);
             var month = int.Parse(dateGroups[2].Value);

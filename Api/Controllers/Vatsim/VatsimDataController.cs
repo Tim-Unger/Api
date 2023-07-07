@@ -10,7 +10,7 @@ namespace Api.Controllers
     [Route("api")]
     public class VatsimController : Microsoft.AspNetCore.Mvc.Controller
     {
-        private static readonly List<string> AllowedTypes = new()
+        private static readonly List<string> _allowedTypes = new()
         {
             "general",
             "pilots",
@@ -133,7 +133,7 @@ namespace Api.Controllers
             var options = new JsonSerializerOptions() { WriteIndented = true };
             var convertedType = type.ToLower();
 
-            if (!AllowedTypes.Any(x => x == convertedType))
+            if (!_allowedTypes.Any(x => x == convertedType))
             {
                 return Json("Use Use on of the following types: general, pilots, controllers, atis, servers, prefiles, facilities, ratings, pilot_ratings");
             }
@@ -149,7 +149,7 @@ namespace Api.Controllers
                 return Json(ex.Message);
             }
 
-            var data = JsonSerializer.Deserialize<Json.Json.VatsimData>(vatsimData)!;
+            var data = JsonSerializer.Deserialize<VatsimData>(vatsimData)!;
 
             if (callsign == null)
             {
