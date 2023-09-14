@@ -27,6 +27,8 @@ namespace Api.Controllers.Metar
     [ApiController]
     public class MetarController : Controller
     {
+        private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
+
         /// <summary>
         /// Get the metar of an ICAO as a simple string
         /// </summary>
@@ -63,14 +65,14 @@ namespace Api.Controllers.Metar
                 return Json("No ICAO provided");
             }
 
-            var metars = ParseMetar.FromList(DownloadMetar.FromVatsimMultiple(icao));
+            var metars = DownloadMetar.FromVatsimMultiple(icao).ParseMetars();
             
             var jsonResults = new List<JsonResult>();
             metars.ForEach(x => jsonResults.Add(Json(GetMetar(x))));
             //Since GetMetar returns an object the Value of each item needs to be selected)
             var resultsFiltered = jsonResults.Select(x => x.Value);
 
-            return Json(resultsFiltered);
+            return Json(resultsFiltered, _jsonOptions);
         }
 
         //This is the only way to return everything as one json
@@ -165,7 +167,7 @@ namespace Api.Controllers.Metar
                 return "ICAO Length must be 4 letters";
             }
 
-            return ParseMetar.FromString(DownloadMetar.FromVatsimSingle(icao)).ReadableReport;
+            return ParseMetar.FromString(DownloadMetar.FromVatsimSingle(icao)).ReadableReport ?? "";
         }
 
         private JsonResult GetMetarType(MetarSharp.Metar metar, MetarType metarType) => metarType switch

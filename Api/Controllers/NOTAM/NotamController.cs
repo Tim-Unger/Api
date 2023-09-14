@@ -49,7 +49,7 @@ namespace Api.Controllers.NOTAM
                 )
                 .ToList();
 
-            return Json(notams);
+            return Json(notams, Options.JsonOptions);
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Api.Controllers.Vatsim.Events
         /// Get all current and future Vatsim-Events
         /// </summary>
         /// <returns></returns>
+        //TODO
         [HttpGet("/vatsim/events")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         public async Task<JsonResult> Get()

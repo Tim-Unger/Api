@@ -33,24 +33,26 @@ namespace Api.Controllers.DAtis
 
 			var returnTextOnly = textOnly?.ToLowerInvariant() == "textonly";
 
+            icao = icao.ToUpperInvariant();
+
 			if (string.IsNullOrEmpty(icao) || icao.Length < 3 || icao.Length > 4)
 			{
 				return Json("Please provide a valid ICAO (JKF or KJFK)");
 			}
 
 			var countryCodes = new[] { 'K', 'P', 'T' };
-			if (icao.Length == 4 && !countryCodes.Any(x => icao.ToUpper().StartsWith(x)))
+			if (icao.Length == 4 && !countryCodes.Any(x => icao.StartsWith(x)))
 			{
 				return Json("Please provide a valid American ICAO-Code (KXXX, PANC, PHNL, or TJSJ)");
 			}
 
 			if (icao.Length == 3)
 			{
-				var icaoCode = icao.ToUpper() switch
+				var icaoCode = icao switch
 				{
-					"ANC" or "HNL" => $"P{icao.ToUpper()}",
-					"JSJ" => $"T{icao.ToUpper()}",
-					_ => $"K{icao.ToUpper()}",
+					"ANC" or "HNL" => $"P{icao}",
+					"JSJ" => $"T{icao}",
+					_ => $"K{icao}",
 				};
 
 				if (!DAtisAirports.Any(x => x == icaoCode))
@@ -72,12 +74,12 @@ namespace Api.Controllers.DAtis
 					return Json(stringBuilder.ToString());
 				}
 
-				return Json(concatAtis);
+				return Json(concatAtis, Options.JsonOptions);
 			}
 
-			if (!DAtisAirports.Any(x => x == icao.ToUpper()))
+			if (!DAtisAirports.Any(x => x == icao))
 			{
-				return Json("Your ICAO does not have a D-ATIS");
+				return Json("Your ICAO does not have a D-ATIS", Options.JsonOptions);
 			}
 
 			var atis = await client.GetFromJsonAsync<List<DAtis>>($"https://datis.clowd.io/api/{icao}");
@@ -91,10 +93,10 @@ namespace Api.Controllers.DAtis
 			{
 				atis.ForEach(x => stringBuilder.AppendLine(x.Datis));
 
-				return Json(stringBuilder.ToString());
+				return Json(stringBuilder.ToString(), Options.JsonOptions);
 			}
 
-			return Json(atis);
+			return Json(atis, Options.JsonOptions);
 		}
 	}
 }

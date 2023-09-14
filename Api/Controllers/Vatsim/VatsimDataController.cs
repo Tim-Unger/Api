@@ -51,7 +51,7 @@ namespace Api.Controllers
 
             if (vatsimData == null)
             {
-                return Json("Vatsim-Data could not be read");
+                return Json("Vatsim-Data could not be read", Options.JsonOptions);
             }
 
             var serverCountList = new List<string>();
@@ -90,7 +90,7 @@ namespace Api.Controllers
             //Adds the count of each server to the list (can't ping these servers themselves since the automatic server exists)
             countServers.ForEach(x => serversList.Add(new Server() { Connections = x.Count, Name = x.Value, Operational = true }));
 
-            return Json(serversList);
+            return Json(serversList, Options.JsonOptions);
         }
 
         //private static bool IsServerOperational(string ip)
@@ -112,12 +112,12 @@ namespace Api.Controllers
         {
             try
             {
-                return Json(Vatsim.GetData.GetVatsimData().Result);
+                return Json(Vatsim.GetData.GetVatsimData().Result, Options.JsonOptions);
             }
 
             catch (Exception ex)
             {
-                return Json(ex.Message);
+                return Json(ex.Message, Options.JsonOptions);
             }
         }
 
@@ -135,7 +135,7 @@ namespace Api.Controllers
 
             if (!_allowedTypes.Any(x => x == convertedType))
             {
-                return Json("Use Use on of the following types: general, pilots, controllers, atis, servers, prefiles, facilities, ratings, pilot_ratings");
+                return Json("Use Use on of the following types: general, pilots, controllers, atis, servers, prefiles, facilities, ratings, pilot_ratings", Options.JsonOptions);
             }
 
             string? vatsimData = null;
@@ -146,7 +146,7 @@ namespace Api.Controllers
             }
             catch (Exception ex)
             {
-                return Json(ex.Message);
+                return Json(ex.Message, Options.JsonOptions);
             }
 
             var data = JsonSerializer.Deserialize<VatsimData>(vatsimData)!;
@@ -155,21 +155,21 @@ namespace Api.Controllers
             {
                 if (string.IsNullOrEmpty(vatsimData))
                 {
-                    return Json("Error with the Vatsim Data");
+                    return Json("Error with the Vatsim Data", Options.JsonOptions);
                 }
 
                 return convertedType switch
                 {
-                    "general" => Json(data.General),
-                    "pilots" => Json(data.Pilots),
-                    "controllers" => Json(data.Controllers),
-                    "atis" => Json(data.Atis),
-                    "servers" => Json(data.Servers),
-                    "prefiles" => Json(data.Prefiles),
-                    "facilities" => Json(data.Facilities),
-                    "ratings" => Json(data.Ratings),
-                    "pilot_ratings" or "pilotratings" => Json(data.PilotRatings),
-                    _ => Json("Type not recognized")
+                    "general" => Json(data.General, Options.JsonOptions),
+                    "pilots" => Json(data.Pilots, Options.JsonOptions),
+                    "controllers" => Json(data.Controllers, Options.JsonOptions),
+                    "atis" => Json(data.Atis, Options.JsonOptions),
+                    "servers" => Json(data.Servers, Options.JsonOptions),
+                    "prefiles" => Json(data.Prefiles, Options.JsonOptions),
+                    "facilities" => Json(data.Facilities, Options.JsonOptions),
+                    "ratings" => Json(data.Ratings, Options.JsonOptions),
+                    "pilot_ratings" or "pilotratings" => Json(data.PilotRatings, Options.JsonOptions),
+                    _ => Json("Type not recognized", Options.JsonOptions)
                 };
             }
 
@@ -183,18 +183,18 @@ namespace Api.Controllers
 
             if (!allowedTypesWithCallsign.Any(x => x == convertedType))
             {
-                return Json("You can only use the callsign-option with the following types: pilots, controllers, atis, prefiles");
+                return Json("You can only use the callsign-option with the following types: pilots, controllers, atis, prefiles", Options.JsonOptions);
             }
 
             if (int.TryParse(callsign, out var cid))
             {
                 return convertedType switch
                 {
-                    "pilots" => Json(data.Pilots.Where(x => x.cid == cid).ToList()),
-                    "controllers" => Json(data.Controllers.Where(x => x.cid == cid).ToList()),
-                    "atis" => Json(data.Atis.Where(x => x.cid == cid).ToList()),
-                    "prefiles" => Json(data.Prefiles.Where(x => x.cid == cid).ToList()),
-                    _ => Json("")
+                    "pilots" => Json(data.Pilots.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
+                    "controllers" => Json(data.Controllers.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
+                    "atis" => Json(data.Atis.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
+                    "prefiles" => Json(data.Prefiles.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
+                    _ => Json("", Options.JsonOptions)
                 };
             }
 
@@ -204,11 +204,11 @@ namespace Api.Controllers
 
                 return convertedType switch
                 {
-                    "pilots" => Json(data.Pilots.Where(x => x.callsign == convertedCallsign).ToString()),
-                    "controllers" => Json(data.Controllers.Where(x => x.callsign == convertedCallsign).ToString()),
-                    "atis" => Json(data.Atis.Where(x => x.callsign == convertedCallsign).ToString()),
-                    "prefiles" => Json(data.Prefiles.Where(x => x.callsign == convertedCallsign).ToString()),
-                    _ => Json("")
+                    "pilots" => Json(data.Pilots.Where(x => x.callsign == convertedCallsign).ToString(), Options.JsonOptions),
+                    "controllers" => Json(data.Controllers.Where(x => x.callsign == convertedCallsign).ToString(), Options.JsonOptions),
+                    "atis" => Json(data.Atis.Where(x => x.callsign == convertedCallsign).ToString(), Options.JsonOptions),
+                    "prefiles" => Json(data.Prefiles.Where(x => x.callsign == convertedCallsign).ToString(), Options.JsonOptions),
+                    _ => Json("", Options.JsonOptions)
                 };
             }
 
@@ -227,10 +227,10 @@ namespace Api.Controllers
 
                     if (allControllers.Count == 0)
                     {
-                        return Json("No controllers found");
+                        return Json("No controllers found", Options.JsonOptions);
                     }
 
-                    return Json(allControllers);
+                    return Json(allControllers, Options.JsonOptions);
                 }
 
                 var allowedTrafficTypes = new string[]
@@ -249,10 +249,10 @@ namespace Api.Controllers
 
                     if (allPilotsList.Count == 0)
                     {
-                        return Json("No Pilots found");
+                        return Json("No Pilots found", Options.JsonOptions);
                     }
 
-                    return Json(allPilotsList);
+                    return Json(allPilotsList, Options.JsonOptions);
                 }
 
                 var convertedTrafficType = trafficType.ToLower();
@@ -266,23 +266,23 @@ namespace Api.Controllers
 
                     if (allPilots.Count == 0)
                     {
-                        return Json("No Pilots inbound to this airport found");
+                        return Json("No Pilots inbound to this airport found", Options.JsonOptions);
                     }
 
-                    return Json(allPilots);
+                    return Json(allPilots, Options.JsonOptions);
                 }
 
                 allPilots = data.Pilots.Where(x => x.flight_plan != null).Where(x => x.flight_plan.departure.ToLower().StartsWith(callsign.ToLower())).ToList();
 
                 if (allPilots.Count == 0)
                 {
-                    return Json("No Pilots outbound from this airport found");
+                    return Json("No Pilots outbound from this airport found", Options.JsonOptions);
                 }
 
-                return Json(allPilots);
+                return Json(allPilots, Options.JsonOptions);
             }
 
-            return Json("");
+            return Json("", Options.JsonOptions);
         }
     }
 }

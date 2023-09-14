@@ -4,8 +4,8 @@
     [ApiController]
     public class TestController : Controller
     {
-        [HttpGet("/fizzbuzz/{numberInput?}")]
-        public string Test(string? numberInput = null)
+        //[HttpGet("/fizzbuzz/{numberInput?}")]
+        private string Test(string? numberInput = null)
         {
             if(numberInput == null)
             {
@@ -39,8 +39,8 @@
             };
         }
 
-        [HttpGet("/acars/{search}")]
-        public string Get(string search)
+        //[HttpGet("/acars/{search}")]
+        private string Get(string search)
         {
             var client = new HttpClient();
             var res = client.GetStringAsync("https://acars.adsbexchange.com/#!/1?socketid=t5nqLU8mhfIkql2yCmHm").Result;

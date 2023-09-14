@@ -1,6 +1,4 @@
-﻿using static Api.Controllers.AirlinesController;
-
-namespace Api.Controllers.Airlines.SearchParameters
+﻿namespace Api.Controllers.Airlines.SearchParameters
 {
     public class ByIcao
     {
@@ -18,7 +16,7 @@ namespace Api.Controllers.Airlines.SearchParameters
             return new AirlineResult()
             {
                 Parameter = searchParameter,
-                Airlines = airlines.Where(x => x.Icao == search.ToUpper()).ToList()
+                Airlines = airlines.Where(x => x.Icao.Equals(search.ToUpper(), StringComparison.InvariantCultureIgnoreCase)).ToList()
             };
         }
     }

@@ -1,30 +1,31 @@
-﻿using Newtonsoft.Json;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Mvc;
-using Api;
+﻿using AviationSharp.NAT;
 
 namespace Api.Controllers
 {
     public class NattrakController : Controller
     {
-        [HttpGet("nattracks")]
-        //https://github.com/aogden41/NAT-Tracks
-        public JsonResult GetTracks(string id, bool si = false)
-        {
-            // Return specific track
-            if (id != null)
-            {
-                var charID = id.ToString().ToUpper().ToCharArray()[0];
+        [HttpGet("/nattrack/all")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public JsonResult GetAllTracks() => Json(NatTracks.GetAll());
 
-                if (si) return Json(GetNatTracks.ParseTracks(si).Where(t => t.Id == charID).FirstOrDefault());
+        [HttpGet("/nattrack/{indicator}")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public JsonResult GetSingleTrack(string indicator) => Json(NatTracks.GetByID(indicator));
 
-                else return Json(GetNatTracks.ParseTracks().Where(t => t.Id == charID).FirstOrDefault());
-            }
+        [HttpGet("/nattrack/notam")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public string GetNatNotam() => NatTracks.GetRawNatNotam();
 
-            // Return metres
-            if (si) return Json(GetNatTracks.ParseTracks(si));
+        [HttpGet("/nattrack/tmi")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public int GetTmi() => NatTracks.GetTodaysTMI;
 
-            else return Json(GetNatTracks.ParseTracks());
-        }
+        [HttpGet("/nattrack/concorde")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public JsonResult GetConcordeTracks() => Json(NatTracks.GetConcordeTracks());
+
+        [HttpGet("/nattrack/concorde/{indicator}")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public JsonResult GetConcordeTracks(string indicator) => Json(NatTracks.GetConcordeTrack(indicator));
     }
 }

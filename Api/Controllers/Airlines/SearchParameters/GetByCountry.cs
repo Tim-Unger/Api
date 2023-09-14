@@ -1,6 +1,4 @@
-﻿using static Api.Controllers.AirlinesController;
-
-namespace Api.Controllers.Airlines.SearchParameters
+﻿namespace Api.Controllers.Airlines.SearchParameters
 {
     internal class ByCountry
     {
