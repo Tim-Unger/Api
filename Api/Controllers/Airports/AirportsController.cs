@@ -66,6 +66,7 @@ namespace Api.Controllers.Airports
             return airports;
         }
 
+        //TODO
         private static string GetCountry(string isoCode) => isoCode switch
         {
             "AG" => "Solomon Islands",
@@ -89,7 +90,8 @@ namespace Api.Controllers.Airports
             "EE" => "Estonia",
             "EF" => "Finland",
             "EG" => "United Kingdom",
-            "EH" => "Netherlands"
+            "EH" => "Netherlands",
+            _ => throw new NotImplementedException()
         };
     }
 }

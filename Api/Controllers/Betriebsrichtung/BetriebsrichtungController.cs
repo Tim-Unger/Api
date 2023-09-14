@@ -1,8 +1,9 @@
 ﻿namespace Api.Controllers
 {
-    internal class BetriebsrichtungDTO
+    internal class Betriebsrichtung
     {
-        public string Betriebsrichtung { get; set; } = "25";
+        [JsonPropertyName("betriebsrichtung")]
+        public string Richtung { get; set; } = "25";
     }
 
     [Route("api")]
@@ -20,7 +21,7 @@
         {
             var is25 = GetBetriebsrichtung.Betriebsrichtung() == "25";
 
-            var betriebsRichtung = new BetriebsrichtungDTO { Betriebsrichtung = is25 ? "25" : "07" };
+            var betriebsRichtung = new Betriebsrichtung { Richtung = is25 ? "25" : "07" };
             
             return Json(betriebsRichtung);
         }

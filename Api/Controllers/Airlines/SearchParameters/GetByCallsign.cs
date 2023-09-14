@@ -1,6 +1,4 @@
-﻿using static Api.Controllers.AirlinesController;
-
-namespace Api.Controllers.Airlines.SearchParameters
+﻿namespace Api.Controllers.Airlines.SearchParameters
 {
     internal class ByCallsign
     {
@@ -9,7 +7,7 @@ namespace Api.Controllers.Airlines.SearchParameters
             string search,
             List<Airline> airlines
         ) =>
-            new AirlineResult()
+            new()
             {
                 Parameter = searchParameter,
                 Airlines = airlines
