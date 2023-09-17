@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <Folder Include="Models\" />
+    <Folder Include="Exceptions\" />
   </ItemGroup>
 
   <ItemGroup>

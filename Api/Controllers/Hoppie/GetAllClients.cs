@@ -1,6 +1,4 @@
-﻿using HtmlAgilityPack;
-
-namespace Api.Controllers.Hoppie
+﻿namespace Api.Controllers.Hoppie
 {
     public class AllClients
     {

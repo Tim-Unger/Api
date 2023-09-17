@@ -44,7 +44,7 @@ namespace Api.Controllers
                 "rb" or "re"
                 => VVSTrainType.Regionalbahn,
 
-                _ => throw new Exception("Specified Train Type not found")
+                _ => throw new ArgumentOutOfRangeException()
 
             };
 

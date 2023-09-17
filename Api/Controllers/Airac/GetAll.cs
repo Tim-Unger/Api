@@ -1,19 +1,10 @@
-﻿using HtmlAgilityPack;
-using System.Text.RegularExpressions;
-
-namespace Api.Controllers.Airac
+﻿namespace Api.Controllers.Airac
 {
-    public class Airac
+    internal class Airacs
     {
-        public int CycleNumberInYear { get; init; }
-        public int Ident { get; init; }
-        public DateOnly StartDate { get; init; }
-        public DateOnly EndDate { get; set; }
-    }
+        internal static JsonResult Get() => new(GetList());
 
-    public class Airacs
-    {
-        public static List<Airac> Get()
+        internal static List<Airac> GetList()
         {
             var html = @"https://www.nm.eurocontrol.int/RAD/common/airac_dates.html";
             var web = new HtmlWeb();
@@ -23,7 +14,6 @@ namespace Api.Controllers.Airac
             //Get all table nodes
             var nodes = doc.DocumentNode.SelectNodes("//tr");
 
-            
             var airacs = nodes
                 .Where(x => x.ChildNodes.Count == 11)
                 .Where(x => int.TryParse(x.ChildNodes[1].InnerText, out _))
@@ -41,7 +31,7 @@ namespace Api.Controllers.Airac
                 .ToList();
 
             //Adds an end-date to every airac except the last one by using the start date of the previous one. The last one is set manually
-            for( var i = 0;  i < airacs.Count - 1; i++ )
+            for (var i = 0; i < airacs.Count - 1; i++)
             {
                 airacs[i].EndDate = airacs[i + 1].StartDate;
             }
