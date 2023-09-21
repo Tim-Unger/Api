@@ -32,7 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <Folder Include="Exceptions\" />
   </ItemGroup>
 
@@ -50,7 +49,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="airlines.json">
+    <Content Update="Data\airlines.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -59,7 +58,10 @@
     <None Update="airports.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="countries.txt">
+    <None Update="Data\countries.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\airports.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

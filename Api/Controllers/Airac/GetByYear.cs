@@ -6,7 +6,7 @@
         {
             if (!int.TryParse(inputYear, out _))
             {
-                return new JsonResult(new ApiError("Provided input was not a number"));
+                return new JsonResult(new ApiError("Provided input was not a number"), Options.JsonOptions);
             }
 
             var dateRegex = new Regex(@"^(?>(20[2-3]\d)|([2-3]\d))$");
@@ -16,7 +16,8 @@
             if (!dateMatch.Success)
             {
                 return new JsonResult(
-                    new ApiError("Year was not valid, please provide a valid year")
+                    new ApiError("Year was not valid, please provide a valid year"),
+                    Options.JsonOptions
                 );
             }
 
@@ -29,13 +30,17 @@
             if (!isYear)
             {
                 return new JsonResult(
-                    new ApiError("Year was not valid, please provide a valid year")
+                    new ApiError("Year was not valid, please provide a valid year"),
+                    Options.JsonOptions
                 );
             }
 
             //We can use == here as we do not have localization with numbers
             var airacs = Airacs.GetList().Where(x => x.StartDate.Year == year).ToList();
-            return new JsonResult(airacs.Count > 0 ? airacs : new ApiError("No Airacs found for this year"));
+            return new JsonResult(
+                airacs.Count > 0 ? airacs : new ApiError("No Airacs found for this year"),
+                Options.JsonOptions
+            );
         }
     }
 }

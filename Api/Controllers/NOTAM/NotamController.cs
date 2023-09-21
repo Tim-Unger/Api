@@ -11,9 +11,10 @@ namespace Api.Controllers.NOTAM
 
     public class NotamController : Controller
     {
-        [HttpGet("/notam/{icao}")]
-        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        [Produces("application/json")]
+        //TODO not fast enough at the moment
+        //[HttpGet("/notam/{icao}")]
+        //[ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        //[Produces("application/json")]
         public JsonResult Get(string icao)
         {
 

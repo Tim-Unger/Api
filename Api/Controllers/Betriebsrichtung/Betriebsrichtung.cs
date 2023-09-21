@@ -3,7 +3,7 @@
     internal class Betriebsrichtung
     {
         [JsonPropertyName("betriebsrichtung")]
-        public string Richtung { get; set; } = "25";
+        public int Richtung { get; set; } = 25;
 
         public List<Probability> Probabilites { get; set; } = new List<Probability>();
     }

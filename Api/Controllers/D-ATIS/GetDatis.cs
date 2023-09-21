@@ -15,13 +15,13 @@ namespace Api.Controllers.DAtis
 
             if (string.IsNullOrEmpty(icao) || icao.Length < 3 || icao.Length > 4)
             {
-                return new JsonResult(new ApiError(""));
+                return new JsonResult(new ApiError("Please provide a valid four letter ICAO-Code"), Options.JsonOptions);
             }
 
             var countryCodes = new[] { 'K', 'P', 'T' };
             if (icao.Length == 4 && !countryCodes.Any(x => icao.StartsWith(x)))
             {
-                return new JsonResult(new ApiError("Please provide a valid American ICAO-Code (KXXX, PANC, PHNL, or TJSJ)"));
+                return new JsonResult(new ApiError("Please provide a valid American ICAO-Code (KXXX, PANC, PHNL, or TJSJ)"),Options.JsonOptions);
             }
 
             if (icao.Length == 3)
@@ -35,21 +35,21 @@ namespace Api.Controllers.DAtis
 
                 if (!DAtisAirports.Any(x => x == icaoCode))
                 {
-                    return new JsonResult(new ApiError("Your ICAO does not have a D-ATIS"));
+                    return new JsonResult(new ApiError("Your ICAO does not have a D-ATIS"), Options.JsonOptions);
                 }
 
                 var concatAtis = client.GetFromJsonAsync<List<DAtis>>($"https://datis.clowd.io/api/{icaoCode}").Result;
 
                 if (concatAtis == null)
                 {
-                    return new JsonResult(new ApiError("Error fetching D-ATIS"));
+                    return new JsonResult(new ApiError("Error fetching D-ATIS"), Options.JsonOptions);
                 }
 
                 if (returnTextOnly)
                 {
                     concatAtis.ForEach(x => stringBuilder.AppendLine(x.Datis));
 
-                    return new JsonResult(stringBuilder.ToString());
+                    return new JsonResult(stringBuilder.ToString(), Options.JsonOptions);
                 }
 
                 return new JsonResult(concatAtis, Options.JsonOptions);
@@ -57,14 +57,14 @@ namespace Api.Controllers.DAtis
 
             if (!DAtisAirports.Any(x => x == icao))
             {
-                return new JsonResult(new ApiError("Your ICAO does not have a D-ATIS"));
+                return new JsonResult(new ApiError("Your ICAO does not have a D-ATIS"), Options.JsonOptions);
             }
 
             var atis = client.GetFromJsonAsync<List<DAtis>>($"https://datis.clowd.io/api/{icao}").Result;
 
             if (atis == null || atis.Count == 0)
             {
-                return new JsonResult(new ApiError("No D-ATIS found for your airpot"));
+                return new JsonResult(new ApiError("No D-ATIS found for your airpot"), Options.JsonOptions);
             }
 
             if (returnTextOnly)

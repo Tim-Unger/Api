@@ -8,7 +8,7 @@
             List<Airline> airlines
         )
         {
-            var countries = File.ReadAllLines($"{Environment.CurrentDirectory}/countries.txt")
+            var countries = File.ReadAllLines($"{Environment.CurrentDirectory}/Data/countries.txt")
                 .ToList();
 
             if (!countries.Any(x => x.ToLower() == search.ToLower()))

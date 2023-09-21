@@ -12,14 +12,14 @@ namespace Api.Controllers.Airlines
             {
                 return new JsonResult(new ApiError(
                     "Please use one of the following search Parameters: name=, iata=, icao=, callsign=, country="
-                ));
+                ), Options.JsonOptions);
             }
 
             var airlines = AirlinesJson.ReadJson();
 
             var searches = GetSearchResults(matches);
 
-            return new JsonResult(SearchResults.Get(searches, airlines, Parameters.SingleSearch));
+            return new JsonResult(SearchResults.Get(searches, airlines, Parameters.SingleSearch), Options.JsonOptions);
         }
 
         internal static List<Search> GetSearchResults(MatchCollection matches) =>

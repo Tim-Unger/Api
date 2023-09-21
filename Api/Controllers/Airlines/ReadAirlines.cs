@@ -4,7 +4,7 @@
     {
         internal static List<Airline> ReadJson()
         {
-            var airlinesPath = $"{Environment.CurrentDirectory}/airlines.json";
+            var airlinesPath = $"{Environment.CurrentDirectory}/Data/airlines.json";
             return JsonSerializer.Deserialize<List<Airline>>(
                 File.ReadAllText(airlinesPath)
             )!;

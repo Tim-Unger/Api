@@ -18,14 +18,18 @@ namespace Api.Controllers
         /// <summary>
         /// Get All Airlines
         /// </summary>
+        /// <remarks>
+        /// source: https://raw.githubusercontent.com/npow/airline-codes/master/airlines.json
+        /// I cannot guarantee the correctness and up-to-dateness of the data
+        /// </remarks>
         /// <returns></returns>
         [HttpGet("/airlines")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
-        public JsonResult GetAll() => Json(AirlinesJson.ReadJson());
+        public JsonResult GetAll() => Json(AirlinesJson.ReadJson(), Options.JsonOptions);
 
         /// <summary>
-        /// Get the Data about an Airline-ICAO
+        /// Get Airlines that match the defined Search Parameters
         /// </summary>
         /// <remarks>
         /// You can use the following search parameters:
@@ -34,8 +38,10 @@ namespace Api.Controllers
         /// icao={Icao},
         /// callsign={Callsign},
         /// country={Country},
-        /// active={yes(true)/no(false)}
-        /// You can combine searches with an &
+        /// You can combine searches with an &amp;
+        /// 
+        /// This will return a separate JSON Search Result for each Parameter, if you want to only get one JSON-Class, please use MatchAny
+        /// 
         /// </remarks>
         /// <returns></returns>
         [HttpGet("/airlines/{search}")]
@@ -43,11 +49,40 @@ namespace Api.Controllers
         [Produces("application/json")]
         public JsonResult Get(string search) => Searches.Get(search);
 
+        /// <summary>
+        /// Get Airlines that Match All defined Search Parameters
+        /// </summary>
+        /// <remarks>
+        /// You can use the following search parameters:
+        /// name={Name}
+        /// iata={Iata},
+        /// icao={Icao},
+        /// callsign={Callsign},
+        /// country={Country},
+        /// You can combine searches with an &amp;
+        /// </remarks>
+        /// <returns></returns>
         [HttpGet("/airlines/{search}/matchall")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
         public JsonResult GetMultipleMatchAll(string search) => GetSearchesMultipleParameters.Get(search, true);
 
+        /// <summary>
+        /// Get Airlines that Match Any defined Search Parameter
+        /// </summary>
+        /// <remarks>
+        /// You can use the following search parameters:
+        /// name={Name}
+        /// iata={Iata},
+        /// icao={Icao},
+        /// callsign={Callsign},
+        /// country={Country},
+        /// You can combine searches with an &amp;
+        /// </remarks>
+        /// <example>
+        /// callsign=lufthansa&amp;icao=dlh
+        /// </example>
+        /// <returns></returns>
         [HttpGet("/airlines/{search}/matchany")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]

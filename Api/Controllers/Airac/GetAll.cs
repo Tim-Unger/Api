@@ -2,7 +2,7 @@
 {
     internal class Airacs
     {
-        internal static JsonResult Get() => new(GetList());
+        internal static JsonResult Get() => new(GetList(), Options.JsonOptions);
 
         internal static List<Airac> GetList()
         {

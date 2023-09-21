@@ -27,8 +27,6 @@ namespace Api.Controllers.Metar
     [ApiController]
     public class MetarController : Controller
     {
-        private static readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
-
         /// <summary>
         /// Get the metar of an ICAO as a simple string
         /// </summary>
@@ -50,7 +48,7 @@ namespace Api.Controllers.Metar
         /// Get the metar of an ICAO and decodes it into JSON 
         /// </summary>
         /// <remarks>
-        /// (uses the Vatsim-Metar-Service for the Metar and MetarSharp for the decoding)
+        /// (uses https://metar.vatsim.net/ for the Metar and http://metar.tim-u.me/ for the decoding)
         /// You can also only use a country or region code (e.g. EG/Y/K), which will return a list of all decoded metars from that region
         /// </remarks>
         /// <param name="icao"></param>
@@ -62,17 +60,18 @@ namespace Api.Controllers.Metar
         {
             if (icao == null)
             {
-                return Json("No ICAO provided");
+                return Json(new ApiError("No ICAO provided"), Options.JsonOptions);
             }
 
             var metars = DownloadMetar.FromVatsimMultiple(icao).ParseMetars();
             
             var jsonResults = new List<JsonResult>();
             metars.ForEach(x => jsonResults.Add(Json(GetMetar(x))));
+
             //Since GetMetar returns an object the Value of each item needs to be selected)
             var resultsFiltered = jsonResults.Select(x => x.Value);
 
-            return Json(resultsFiltered, _jsonOptions);
+            return Json(resultsFiltered, Options.JsonOptions);
         }
 
         //This is the only way to return everything as one json
@@ -140,7 +139,7 @@ namespace Api.Controllers.Metar
 
             if (metarType == MetarType.Error)
             {
-                return Json("Metar Type was not valid or not given");
+                return Json(new ApiError("Metar Type was not valid or not given"), Options.JsonOptions);
             }
 
             var metars = new List<MetarSharp.Metar>();
@@ -150,9 +149,14 @@ namespace Api.Controllers.Metar
             metars.ForEach(x => jsonResults.Add(GetMetarType(x, metarType)));
             var resultsFiltered = jsonResults.Select(x => x.Value);
 
-            return Json(resultsFiltered);
+            return Json(resultsFiltered, Options.JsonOptions);
         }
 
+        /// <summary>
+        /// Get a readable report for a netar from an ICAO-Code
+        /// </summary>
+        /// <param name="icao"></param>
+        /// <returns></returns>
         [HttpGet("/metar/{icao}/readablereport")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         public string GetAndDecodeReadableReport(string icao)

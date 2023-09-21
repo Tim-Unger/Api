@@ -15,7 +15,8 @@
                 return new JsonResult(
                     new ApiError(
                         "Inputted date was not valid, please use an ISO9601 compliant date (20231231)"
-                    )
+                    ),
+                    Options.JsonOptions
                 );
             }
 
@@ -30,10 +31,9 @@
             var dateOnly = new DateOnly(year, month, day);
 
             return new JsonResult(
-                    airacs
-                        .Where(x => x.StartDate < dateOnly && x.EndDate > dateOnly)
-                        .First()
-                ) ?? new JsonResult(new ApiError("Date has no Airac"));
+                    airacs.Where(x => x.StartDate < dateOnly && x.EndDate > dateOnly).First(),
+                    Options.JsonOptions
+                ) ?? new JsonResult(new ApiError("Date has no Airac"), Options.JsonOptions);
         }
     }
 }
