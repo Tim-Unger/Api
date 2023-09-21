@@ -4,15 +4,14 @@
     {
         internal static JsonResult Get(string inputIdent)
         {
-            if (!int.TryParse(inputIdent, out _))
+            if (!int.TryParse(inputIdent, out var ident))
             {
                 return new JsonResult(new ApiError("Provided Input was not a number"));
             }
 
-            var ident = int.Parse(inputIdent);
+            var airac = Airacs.GetList().FirstOrDefault(x => x.Ident == ident);
+            return new JsonResult(airac is not null ? ident : new ApiError("Ident not found"));
 
-            return new JsonResult(Airacs.GetList().FirstOrDefault(x => x.Ident == ident))
-                ?? new JsonResult(new ApiError("Ident not found"));
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using static Api.Controllers.Airlines.Parameter;
-using static Api.Controllers.AirlinesController;
+﻿using static Api.Controllers.AirlinesController;
 
 namespace Api.Controllers.Airlines
 {
@@ -12,7 +11,7 @@ namespace Api.Controllers.Airlines
             if (matches.Count == 0 || !matches[0].Success)
             {
                 return new JsonResult(new ApiError(
-                    "Please use one of the following search Parameters: name=, iata=, icao=, callsign=, country=, active="
+                    "Please use one of the following search Parameters: name=, iata=, icao=, callsign=, country="
                 ));
             }
 
@@ -20,7 +19,7 @@ namespace Api.Controllers.Airlines
 
             var searches = GetSearchResults(matches);
 
-            return new JsonResult(SearchResults.Get(searches, airlines, false));
+            return new JsonResult(SearchResults.Get(searches, airlines, Parameters.SingleSearch));
         }
 
         internal static List<Search> GetSearchResults(MatchCollection matches) =>
@@ -37,7 +36,7 @@ namespace Api.Controllers.Airlines
                                 "icao" => SearchParameter.Icao,
                                 "callsign" => SearchParameter.Callsign,
                                 "country" => SearchParameter.Country,
-                                "active" => SearchParameter.Active,
+                                //"active" => SearchParameter.Active,
                                 _
                                   => throw new ArgumentOutOfRangeException(
                                       "search parameter not recognized"

@@ -1,41 +1,27 @@
 ﻿namespace Api.Controllers.Airlines
 {
-    //Transfer Object to parse from the JSON
-    internal class AirlineDTO
-    {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [JsonPropertyName("alias")]
-        public string Alias { get; set; }
-
-        [JsonPropertyName("iata")]
-        public string Iata { get; set; }
-
-        [JsonPropertyName("icao")]
-        public string Icao { get; set; }
-
-        [JsonPropertyName("callsign")]
-        public string Callsign { get; set; }
-
-        [JsonPropertyName("country")]
-        public string Country { get; set; }
-
-        [JsonPropertyName("active")]
-        public string Active { get; set; }
-    }
-
     //The actual Airline Class
     internal class Airline
     {
+        [JsonPropertyName("name")]
         public string Name { get; set; } = "Airline";
+
+        [JsonPropertyName("iata")]
         public string Iata { get; set; } = "AAA";
+
+        [JsonPropertyName("icao")]
         public string Icao { get; set; } = "AAAA";
+
+        [JsonPropertyName("callsign")]
         public string Callsign { get; set; } = "Callsign";
+
+        [JsonPropertyName("country")]
         public string Country { get; set; } = "Country";
-        public bool IsActive { get; set; } = true;
+
+        //[JsonPropertyName("active")]
+        //internal string _isActive;
+
+        //[JsonPropertyName("isActive")]
+        //public bool IsActive = true;
     }
 }

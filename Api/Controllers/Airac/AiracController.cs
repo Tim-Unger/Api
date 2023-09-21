@@ -16,7 +16,7 @@
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         public JsonResult GetNext() => Next.Get();
 
-        [HttpGet("/airacs/ident/{ident}")]
+        [HttpGet("/airacs/ident/{inputIdent}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         public JsonResult GetByIdent(string inputIdent) => ByIdent.Get(inputIdent);
 
@@ -24,7 +24,7 @@
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         public JsonResult GetByYear(string inputYear) => ByYear.Get(inputYear);
 
-        [HttpGet("/airacs/date/{date}")]
+        [HttpGet("/airacs/date/{inputDate}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         public JsonResult GetByDate(string inputDate) => ByDate.Get(inputDate);
     }

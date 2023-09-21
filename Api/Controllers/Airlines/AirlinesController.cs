@@ -1,12 +1,11 @@
 ﻿using Api.Controllers.Airlines;
-using static Api.Controllers.Airlines.Parameter;
 
 namespace Api.Controllers
 {
     [Route("api")]
     public class AirlinesController : Controller
     {
-        internal static readonly Regex _searchRegex = new Regex(
+        internal static readonly Regex _searchRegex = new(
             @"(?>(name|iata|icao|callsign|country|active)=(\w*))*(?:(?>&|$))"
         );
 
@@ -47,6 +46,11 @@ namespace Api.Controllers
         [HttpGet("/airlines/{search}/matchall")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
-        public JsonResult GetMultiple(string search) => GetSearchesMatchAll.Get(search);
+        public JsonResult GetMultipleMatchAll(string search) => GetSearchesMultipleParameters.Get(search, true);
+
+        [HttpGet("/airlines/{search}/matchany")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        [Produces("application/json")]
+        public JsonResult GetMultipleMatchAny(string search) => GetSearchesMultipleParameters.Get(search, false);
     }
 }

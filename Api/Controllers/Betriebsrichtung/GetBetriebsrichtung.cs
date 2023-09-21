@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace Api
+﻿namespace Api
 {
     internal class GetBetriebsrichtung
     {
@@ -60,6 +58,7 @@ namespace Api
                 var month = GetMonth(groups[3].Value);
 
                 var now = DateTime.UtcNow;
+
                 probability.ProbabilityStart = new DateTime(now.Year, month, day, hour, 00, 00);
 
                 probability.ProbabilityStartDate = DateOnly.FromDateTime(probability.ProbabilityStart);
@@ -73,9 +72,13 @@ namespace Api
                 probability.Richtung = state switch
                 {
                     1 => Richtung.TwoFive,
+                    2 => Richtung.BothPossible,
+                    3 => Richtung.ZeroSeven,
+                    12 => Richtung.TwoFiveMaybeChanging,
                     13 => Richtung.ChangingBetweenBoth,
                     21 => Richtung.ChangingZeroSevenToTwoFive,
-                    32 => Richtung.TwoFiveMaybeChanging,
+                    23 => Richtung.ChangingTwoFiveToZeroSeven,
+                    32 => Richtung.ZeroSevenMaybeChanging,
                     _ => throw new NotImplementedException()
                 };
 

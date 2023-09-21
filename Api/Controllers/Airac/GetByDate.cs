@@ -32,7 +32,7 @@
             return new JsonResult(
                     airacs
                         .Where(x => x.StartDate < dateOnly && x.EndDate > dateOnly)
-                        .FirstOrDefault()
+                        .First()
                 ) ?? new JsonResult(new ApiError("Date has no Airac"));
         }
     }
