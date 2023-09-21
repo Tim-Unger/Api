@@ -3,12 +3,12 @@
     internal class ByCountry
     {
         internal static AirlineResult Get(
-            string searchParameter,
+            SearchParameter searchParameter,
             string search,
             List<Airline> airlines
         )
         {
-            var countries = File.ReadAllLines($"{Environment.CurrentDirectory}/countries.txt")
+            var countries = File.ReadAllLines($"{Environment.CurrentDirectory}/Data/countries.txt")
                 .ToList();
 
             if (!countries.Any(x => x.ToLower() == search.ToLower()))
@@ -20,7 +20,7 @@
 
             return new AirlineResult()
             {
-                Parameter = searchParameter,
+                Parameters = searchParameter.SingleItemToList(),
                 Airlines = airlines
                     .Where(
                         x => x.Country.Equals(search, StringComparison.InvariantCultureIgnoreCase)

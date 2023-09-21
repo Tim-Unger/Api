@@ -3,7 +3,7 @@
     internal class ByIata
     {
         internal static AirlineResult Get(
-            string searchParameter,
+            SearchParameter searchParameter,
             string search,
             List<Airline> airlines
         )
@@ -15,7 +15,7 @@
 
             return new AirlineResult()
             {
-                Parameter = searchParameter,
+                Parameters = searchParameter.SingleItemToList(),
                 Airlines = airlines.Where(x => x.Iata.Equals(search.ToUpper(), StringComparison.InvariantCultureIgnoreCase)).ToList()
             };
         }

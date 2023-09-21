@@ -1,100 +1,67 @@
-﻿using HtmlAgilityPack;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-
-namespace Api.Controllers.Airac
+﻿namespace Api.Controllers.Airac
 {
     [Route("api")]
     [ApiController]
     public class AiracController : Controller
     {
+        /// <summary>
+        /// Get all Airac Cycles that are published by Eurocontrol
+        /// </summary>
+        /// <remarks>
+        /// the list can be found at: https://www.nm.eurocontrol.int/RAD/common/airac_dates.html
+        /// </remarks>
+        /// <returns></returns>
         [HttpGet("/airacs")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult Get() => Json(Airacs.Get());
+        public JsonResult Get() => Airacs.Get();
 
+        /// <summary>
+        /// Get the current Airac
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("/airacs/current")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult GetCurrent()
-        {
-            var airacs = Airacs.Get();
+        public JsonResult GetCurrent() => Current.Get();
 
-            var dateNow = DateOnly.FromDateTime(DateTime.UtcNow);
-
-            for (var i = 0; i < airacs.Count; i++)
-            {
-                if (airacs[i + 1].StartDate > dateNow)
-                {
-                    return Json(airacs[i]);
-                }
-            }
-
-            //If you are here then you are somehow later in time than the publication of any airac (or you have time travelled)
-            throw new UnreachableException(
-                "You are either a time traveller or there are no published AIRAC Cycles"
-            );
-        }
-
+        /// <summary>
+        /// Get the next Airac
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("/airacs/next")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult GetNext()
-        {
-            var airacs = Airacs.Get();
+        public JsonResult GetNext() => Next.Get();
 
-            var dateNow = DateOnly.FromDateTime(DateTime.UtcNow);
-
-            if (dateNow > airacs.Last().StartDate)
-            {
-                return Json("The next Airac is not available yet");
-            }
-
-            for (var i = 0; i < airacs.Count; i++)
-            {
-                if (airacs[i + 1].StartDate > dateNow)
-                {
-                    return Json(airacs[i + 1]);
-                }
-            }
-
-            //If you are here then you are somehow later in time than the publication of any airac (or you have time travelled)
-            throw new UnreachableException(
-                "You are either a time traveller or there are no published AIRAC Cycles"
-            );
-        }
-
-        [HttpGet("/airacs/ident/{ident}")]
+        /// <summary>
+        /// Get a specific Airac by Ident
+        /// </summary>
+        /// <remarks>
+        /// The ident is the four digit code of the Airac (2601)
+        /// </remarks>
+        /// <param name="inputIdent"></param>
+        /// <returns></returns>
+        [HttpGet("/airacs/ident/{inputIdent}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult GetByIdent(int ident) =>
-            Json(Airacs.Get().Where(x => x.Ident == ident).FirstOrDefault()) ?? Json("Ident not found");
+        public JsonResult GetByIdent(string inputIdent) => ByIdent.Get(inputIdent);
 
-        [HttpGet("/airacs/year/{year}")]
+        /// <summary>
+        /// Get all published Airacs in a specific year
+        /// </summary>
+        /// <param name="inputYear"></param>
+        /// <returns></returns>
+        [HttpGet("/airacs/year/{inputYear}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult GetByYear(int year) => Json(Airacs.Get().Where(x => x.StartDate.Year == year).ToList()) ?? Json("No Airacs use this year");
+        public JsonResult GetByYear(string inputYear) => ByYear.Get(inputYear);
 
-        [HttpGet("/airacs/date/{date}")]
+        /// <summary>
+        /// Get the Airac for a specific date
+        /// </summary>
+        /// <remarks>
+        /// Provide the date in the ISO8601 format (2026_01_01)
+        /// </remarks>
+        /// <param name="inputDate"></param>
+        /// <returns></returns>
+        [HttpGet("/airacs/date/{inputDate}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult GetByDate(string date)
-        {
-            var airacs = Airacs.Get();
-
-            var dateRegex = new Regex(
-               @"(20[2-3][0-9])(?>_|-|)?(0[1-9]|1[0-2])(?>_|-|)?(0[1-9]|1[0-9]|2[0-9]|3[0-1])");
-
-            if (!dateRegex.IsMatch(date))
-            {
-                return Json("Inputted date was not valid, please use an ISO9601 compliant date (20231231)");
-            }
-
-            var groups = dateRegex.Match(date).Groups;
-
-            var year = int.Parse(groups[1].Value);
-
-            var month = int.Parse(groups[2].Value);
-
-            var day = int.Parse(groups[3].Value);
-
-            var dateOnly = new DateOnly(year, month, day);
-
-            return Json(airacs.Where(x => x.StartDate < dateOnly && x.EndDate > dateOnly).FirstOrDefault()) ?? Json("Date has no Airac");
-        }
+        public JsonResult GetByDate(string inputDate) => ByDate.Get(inputDate);
     }
 }

@@ -51,7 +51,7 @@ namespace Api.Controllers
 
             if (vatsimData == null)
             {
-                return Json("Vatsim-Data could not be read", Options.JsonOptions);
+                return Json(new ApiError("Vatsim-Data could not be read"), Options.JsonOptions);
             }
 
             var serverCountList = new List<string>();

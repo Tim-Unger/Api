@@ -8,90 +8,97 @@ namespace Api.Controllers.Airports
 {
     public class AirportsController : Controller
     {
-        private static readonly List<char> _regionCodes = new()
-        {
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'V', 'W', 'Y', 'Z'
-        };
+        private static readonly List<char> _regionCodes =
+            new()
+            {
+                'A',
+                'B',
+                'C',
+                'D',
+                'E',
+                'F',
+                'G',
+                'H',
+                'K',
+                'L',
+                'M',
+                'N',
+                'O',
+                'P',
+                'R',
+                'S',
+                'T',
+                'U',
+                'V',
+                'W',
+                'Y',
+                'Z'
+            };
 
+        /// <summary>
+        /// Get all Airports
+        /// </summary>
+        /// <remarks>
+        /// Source: https://ourairports.com/data/
+        /// </remarks>
+        /// <returns></returns>
         [HttpGet("/airports")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
-        public JsonResult GetAll() => Json(ReadAirports());
+        public JsonResult GetAll() => Json(Airports.Read(), Options.JsonOptions);
 
+        //TODO SearchParameters
+        /// <summary>
+        /// Get the Airport that matches a specific ICAO-Code
+        /// </summary>
+        /// <param name="icao"></param>
+        /// <returns></returns>
         [HttpGet("/airports/{icao}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
         public JsonResult Get(string icao)
         {
-            if(icao.Length != 4) 
+            if (icao.Length != 4)
             {
-                return Json("Please provide a valid four letter ICAO Code");
+                return Json(new ApiError("Please provide a four letter ICAO Code"), Options.JsonOptions);
             }
 
-            return Json(ReadAirports().FirstOrDefault(x => x.Icao == icao.ToUpper()));
+            return Json(Airports.Read().FirstOrDefault(x => x.Icao == icao.ToUpper()), Options.JsonOptions);
         }
 
-        [HttpGet("/airports/icaoairports")]
+        /// <summary>
+        /// Get all Airports that are considered a commercial airport
+        /// </summary>
+        /// <remarks>
+        /// this only shows airports that have a four letter ICAO-Code (so no tiny grass strips with letters and numbers as their ICAO) and an IATA-Code (IATA-Codes are only assigned to commercial airports)
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("/airports/commercialairports")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
-        public JsonResult GetIcaoAirports(string icao)
+        public JsonResult GetIcaoAirports()
         {
-            return Json(ReadAirports()
-                        .Where(x => _regionCodes.Any(y => x.Icao.StartsWith(y))
-                              && x.Icao.Length == 4
-                              && x.Icao.All(char.IsLetter)));
-                              
+            return Json(
+                Airports
+                    .Read()
+                    .Where(
+                        x =>
+                            _regionCodes.Any(y => x.Icao.StartsWith(y))
+                            && x.Icao.Length == 4
+                            && x.Icao.All(char.IsLetter)
+                            && x.Iata is not null
+                    ),
+                Options.JsonOptions
+            );
         }
 
-        private static List<Airport> ReadAirports()
-        {
-            var reader = new StreamReader($"{Environment.CurrentDirectory}/airports.csv");
-            var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-            var records = csv.GetRecords<AirportDTO>().ToList();
-
-            var airports = records.Select(x => new Airport()
-            {
-                Icao = x.ident,
-                Iata = x.iata_code ?? "",
-                Name = x.name,
-                Coordinates = new List<decimal>() { decimal.Parse(x.latitude_deg), decimal.Parse(x.longitude_deg) },
-                Elevation = x.elevation_ft != "" ? long.Parse(x.elevation_ft) : 0,
-                Country = GetCountry(x.iso_country),
-                City = x.municipality,
-                HasScheduledService = x.scheduled_service == "yes"
-            })
-            .ToList();
-
-            return airports;
-        }
-
-        //TODO
-        private static string GetCountry(string isoCode) => isoCode switch
-        {
-            "AG" => "Solomon Islands",
-            "AN" => "Nauru",
-            "AY" => "Papua New Guinea",
-            "BG" => "Greenland",
-            "BI" => "Iceland",
-            "BK" => "Kosovo",
-            "C" => "Canada",
-            "DA" => "Algeria",
-            "DB" => "Benin",
-            "DF" => "Burkina Faso",
-            "DG" => "Ghana",
-            "DI" => "Ivory Coast",
-            "DN" => "Nigeria",
-            "DR" => "Niger",
-            "DT" => "Tunisia",
-            "DX" => "Togo",
-            "EB" => "Belgium",
-            "ED" => "Germany",
-            "EE" => "Estonia",
-            "EF" => "Finland",
-            "EG" => "United Kingdom",
-            "EH" => "Netherlands",
-            _ => throw new NotImplementedException()
-        };
+        /// <summary>
+        /// Get the count of all airports
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("/airports/count")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        [Produces("application/json")]
+        public int GetAirportCount() => Airports.Read().Count;
     }
 }

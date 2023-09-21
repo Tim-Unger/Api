@@ -3,13 +3,13 @@
     internal class ByCallsign
     {
         internal static AirlineResult Get(
-            string searchParameter,
+            SearchParameter searchParameter,
             string search,
             List<Airline> airlines
         ) =>
             new()
             {
-                Parameter = searchParameter,
+                Parameters = searchParameter.SingleItemToList(),
                 Airlines = airlines
                     .Where(
                         x =>

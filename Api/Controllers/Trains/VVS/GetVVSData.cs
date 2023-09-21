@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 namespace Api.Controllers.Trains.VVS
@@ -36,7 +37,7 @@ namespace Api.Controllers.Trains.VVS
                 xml.SelectSingleNode("/itdRequest/itdDepartureMonitorRequest/itdDepartureList")
                     .ChildNodes.Cast<XmlNode>()
                 //.Where(x => x.Attributes?["pointType"]?.InnerText == "Gleis")
-                ?? throw new Exception("Departures not found");
+                ?? throw  new Exception("Departures not found");
 
             var departureTime = departures.First().SelectSingleNode("//itdDateTime");
 
