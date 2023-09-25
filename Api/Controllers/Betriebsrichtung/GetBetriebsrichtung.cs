@@ -20,12 +20,12 @@
 
             if (nodeList.Count == 1)
             {
-                betriebsrichtung.Richtung = nodeList[0].Contains("br25west") ? 25 : 07;
+                betriebsrichtung.Richtung = nodeList[0].Contains("br25west") ? "25" : "07";
             }
 
             var correctNode = nodeList.Where(x => x.Contains(".svg")).First();
 
-            betriebsrichtung.Richtung = correctNode.Contains("br25west") ? 25 : 07;
+            betriebsrichtung.Richtung = correctNode.Contains("br25west") ? "25" : "07";
 
             var probabilitiesRawHtml = doc.DocumentNode
                 .SelectNodes("//script")

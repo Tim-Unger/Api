@@ -18,7 +18,7 @@
         /// <returns></returns>
         [HttpGet("/betriebsrichtung/raw")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public int GetRaw() => GetBetriebsrichtung.Get().Richtung;
+        public string GetRaw() => GetBetriebsrichtung.Get().Richtung;
 
         /// <summary>
         /// Get the current landing direction and the forecast for the next days decoded
