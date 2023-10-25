@@ -5,15 +5,27 @@
     public class AiracController : Controller
     {
         /// <summary>
-        /// Get all Airac Cycles that are published by Eurocontrol
+        /// Get all Airac Cycles within -1 and +3 years
         /// </summary>
         /// <remarks>
-        /// the list can be found at: https://www.nm.eurocontrol.int/RAD/common/airac_dates.html
+        /// uses https://github.com/Tim-Unger/AiracGen
         /// </remarks>
         /// <returns></returns>
         [HttpGet("/airacs")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         public JsonResult Get() => Airacs.Get();
+
+        /// <summary>
+        /// Get all Airac Cycles from 1985 to 2061
+        /// </summary>
+        /// <remarks>
+        /// uses https://github.com/Tim-Unger/AiracGen
+        /// </remarks>
+        /// <returns></returns>
+        [HttpGet("/airacs/all")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public JsonResult GetAll() => Airacs.GetAll();
+
 
         /// <summary>
         /// Get the current Airac
