@@ -1,4 +1,6 @@
-﻿namespace Api.Controllers.Airac
+﻿using AiracGen;
+
+namespace Api.Controllers.Airac
 {
     internal class ByIdent
     {
@@ -9,9 +11,8 @@
                 return new JsonResult(new ApiError("Provided Input was not a number"), Options.JsonOptions);
             }
 
-            var airac = Airacs.GetList().FirstOrDefault(x => x.Ident == ident);
-            return new JsonResult(airac is not null ? ident : new ApiError("Ident not found"), Options.JsonOptions);
-
+            var airac = AiracGenerator.GenerateSingle(inputIdent);
+            return new JsonResult(airac is not null ? airac : new ApiError("Ident not found"), Options.JsonOptions);
         }
     }
 }

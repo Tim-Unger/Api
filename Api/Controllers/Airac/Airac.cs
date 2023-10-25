@@ -3,7 +3,7 @@
     public class Airac
     {
         public int CycleNumberInYear { get; init; }
-        public int Ident { get; init; }
+        public string Ident { get; init; }
         public DateOnly StartDate { get; init; }
         public DateOnly EndDate { get; set; }
     }
