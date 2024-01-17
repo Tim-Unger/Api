@@ -1,4 +1,6 @@
-﻿namespace Api.Controllers.Airac
+﻿using AiracGen;
+
+namespace Api.Controllers.Airac
 {
     internal class ByYear
     {
@@ -36,7 +38,7 @@
             }
 
             //We can use == here as we do not have localization with numbers
-            var airacs = Airacs.GetList().Where(x => x.StartDate.Year == year).ToList();
+            var airacs = AiracGenerator.GenerateByYear(year);
             return new JsonResult(
                 airacs.Count > 0 ? airacs : new ApiError("No Airacs found for this year"),
                 Options.JsonOptions

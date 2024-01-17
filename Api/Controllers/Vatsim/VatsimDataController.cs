@@ -107,12 +107,15 @@ namespace Api.Controllers
         /// <returns></returns>
         [HttpGet("/vatsim/data")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        [EnableCors("AllowOrigin")]
-        public JsonResult GetaAllData()
+        public async Task<JsonResult> GetaAllData()
         {
             try
             {
-                return Json(Vatsim.GetData.GetVatsimData().Result, Options.JsonOptions);
+                var dataTask = Vatsim.GetData.GetVatsimData();
+
+                dataTask.Wait();
+
+                return Json(dataTask.Result, Options.JsonOptions);
             }
 
             catch (Exception ex)

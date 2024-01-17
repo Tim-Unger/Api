@@ -4,7 +4,7 @@
     {
         internal static JsonResult Get(string inputDate)
         {
-            var airacs = Airacs.GetList();
+            var airacs = Airacs.GetAiracList();
 
             var dateRegex = new Regex(
                 @"(20[2-3][0-9])(?>_|-|)?(0[1-9]|1[0-2])(?>_|-|)?(0[1-9]|1[0-9]|2[0-9]|3[0-1])"
@@ -31,7 +31,7 @@
             var dateOnly = new DateOnly(year, month, day);
 
             return new JsonResult(
-                    airacs.Where(x => x.StartDate < dateOnly && x.EndDate > dateOnly).First(),
+                    airacs.FirstOrDefault(x => x.StartDate < dateOnly && x.EndDate > dateOnly),
                     Options.JsonOptions
                 ) ?? new JsonResult(new ApiError("Date has no Airac"), Options.JsonOptions);
         }

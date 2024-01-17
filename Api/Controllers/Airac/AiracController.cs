@@ -33,7 +33,7 @@
         /// <returns></returns>
         [HttpGet("/airacs/current")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult GetCurrent() => Current.Get();
+        public JsonResult GetCurrent() => CurrentAirac.Get();
 
         /// <summary>
         /// Get the next Airac
@@ -41,7 +41,7 @@
         /// <returns></returns>
         [HttpGet("/airacs/next")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult GetNext() => Next.Get();
+        public JsonResult GetNext() => NextAirac.Get();
 
         /// <summary>
         /// Get a specific Airac by Ident

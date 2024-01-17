@@ -6,7 +6,8 @@ namespace Api.Controllers.Airac
     {
         internal static JsonResult Get(string inputIdent)
         {
-            if (!int.TryParse(inputIdent, out var ident))
+            //We can use discard as we only need to know if the input is not an int
+            if (!int.TryParse(inputIdent, out _))
             {
                 return new JsonResult(new ApiError("Provided Input was not a number"), Options.JsonOptions);
             }
