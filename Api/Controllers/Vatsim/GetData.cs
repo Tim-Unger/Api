@@ -2,6 +2,7 @@
 {
     public class GetData
     {
-        internal static async Task<string> GetVatsimData() => await new HttpClient().GetStringAsync("https://data.vatsim.net/v3/vatsim-data.json");
+        private static readonly HttpClient _client = new();
+        internal static async Task<string> GetVatsimData() => await _client.GetStringAsync("https://data.vatsim.net/v3/vatsim-data.json");
     }
 }
