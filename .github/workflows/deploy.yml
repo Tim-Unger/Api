@@ -19,15 +19,3 @@ jobs:
 
     - name: Push the images to Docker Hub
       run: docker push timunger/api
-
-    - name: Pull the image to VM
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        script: | 
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
-          docker stop api || true
-          docker rm api || true
-          docker run -d -p 5000:80 --name api ${{ secrets.DOCKERHUB_USERNAME }}/api:latest
