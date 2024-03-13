@@ -44,8 +44,38 @@ namespace Api.Controllers.Metar
             return string.Join(Environment.NewLine, DownloadMetar.FromVatsimMultiple(icao));
         }
 
+        [HttpGet("/metar/decode")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        [Produces("application/json")]
+        public async Task<JsonResult> GetAndDecodeBody()
+        {
+            var bodyStream = Request.Body;
+
+            var streamReader = new StreamReader(bodyStream);
+
+            var body = await streamReader.ReadToEndAsync();
+
+            if (body is null || string.IsNullOrWhiteSpace(body))
+            {
+                return Json(new ApiError("Please provide a body"), Options.JsonOptions);
+            }
+
+            try
+            {
+                var decodedMetar = ParseMetar.FromString(body);
+
+                var metarJson = GetMetar(decodedMetar);
+
+                return new JsonResult(metarJson);
+            }
+            catch
+            {
+                return Json(new ApiError("Please provide a valid metar"), Options.JsonOptions);
+            }
+        }
+
         /// <summary>
-        /// Get the metar of an ICAO and decodes it into JSON 
+        /// Get the metar of an ICAO and decodes it into JSON
         /// </summary>
         /// <remarks>
         /// (uses https://metar.vatsim.net/ for the Metar and http://metar.tim-u.me/ for the decoding)
@@ -64,7 +94,7 @@ namespace Api.Controllers.Metar
             }
 
             var metars = DownloadMetar.FromVatsimMultiple(icao).ParseMetars();
-            
+
             var jsonResults = new List<JsonResult>();
             metars.ForEach(x => jsonResults.Add(Json(GetMetar(x))));
 
@@ -75,24 +105,25 @@ namespace Api.Controllers.Metar
         }
 
         //This is the only way to return everything as one json
-        private static object GetMetar(MetarSharp.Metar metar) => new
-        {
-            metar.MetarRaw,
-            metar.Airport,
-            metar.ReportingTime,
-            metar.IsAutomatedReport,
-            metar.Wind,
-            metar.Visibility,
-            metar.RunwayVisibilities,
-            metar.Weather,
-            metar.Clouds,
-            metar.Temperature,
-            metar.Pressure,
-            metar.Trends,
-            metar.RunwayConditions,
-            metar.ReadableReport,
-            metar.AdditionalInformation
-        };
+        private static object GetMetar(MetarSharp.Metar metar) =>
+            new
+            {
+                metar.MetarRaw,
+                metar.Airport,
+                metar.ReportingTime,
+                metar.IsAutomatedReport,
+                metar.Wind,
+                metar.Visibility,
+                metar.RunwayVisibilities,
+                metar.Weather,
+                metar.Clouds,
+                metar.Temperature,
+                metar.Pressure,
+                metar.Trends,
+                metar.RunwayConditions,
+                metar.ReadableReport,
+                metar.AdditionalInformation
+            };
 
         /// <summary>
         /// Get the Metar of an ICAO and decode it, but only returns part of the decoded Metar the user wants.
@@ -133,17 +164,25 @@ namespace Api.Controllers.Metar
                 "trends" or "trend" => MetarType.Trends,
                 "runwaycondition" or "runwayconditions" => MetarType.RunwayCondition,
                 "readable" or "readablereport" or "decoded" => MetarType.ReadableReport,
-                "additionalinformation" or "info" or "additional" => MetarType.AdditionalInformation,
+                "additionalinformation"
+                or "info"
+                or "additional"
+                  => MetarType.AdditionalInformation,
                 _ => MetarType.Error
             };
 
             if (metarType == MetarType.Error)
             {
-                return Json(new ApiError("Metar Type was not valid or not given"), Options.JsonOptions);
+                return Json(
+                    new ApiError("Metar Type was not valid or not given"),
+                    Options.JsonOptions
+                );
             }
 
             var metars = new List<MetarSharp.Metar>();
-            DownloadMetar.FromVatsimMultiple(icao).ForEach(x => metars.Add(ParseMetar.FromString(x)));
+            DownloadMetar
+                .FromVatsimMultiple(icao)
+                .ForEach(x => metars.Add(ParseMetar.FromString(x)));
 
             var jsonResults = new List<JsonResult>();
             metars.ForEach(x => jsonResults.Add(GetMetarType(x, metarType)));
@@ -174,25 +213,26 @@ namespace Api.Controllers.Metar
             return ParseMetar.FromString(DownloadMetar.FromVatsimSingle(icao)).ReadableReport ?? "";
         }
 
-        private JsonResult GetMetarType(MetarSharp.Metar metar, MetarType metarType) => metarType switch
-        {
-
-            MetarType.Raw => Json(new {metar.Airport, metar.MetarRaw }),
-            MetarType.Airport => Json(new {metar.Airport }),
-            MetarType.ReportingTime => Json(metar.Airport, metar.ReportingTime),
-            MetarType.AutomatedReport => Json(new {metar.Airport, metar.IsAutomatedReport }),
-            MetarType.Wind => Json(new { metar.Airport, metar.Wind }),
-            MetarType.Visibility => Json(new { metar.Airport, metar.Visibility }),
-            MetarType.RunwayVisibility => Json(new { metar.Airport, metar.RunwayVisibilities }),
-            MetarType.Weather => Json(new { metar.Airport, metar.Weather }),
-            MetarType.Clouds => Json(new { metar.Airport, metar.Clouds }),
-            MetarType.Temperature => Json(new { metar.Airport, metar.Temperature }),
-            MetarType.Pressure => Json(new { metar.Airport, metar.Pressure }),
-            MetarType.Trends => Json(new { metar.Airport, metar.Trends }),
-            MetarType.RunwayCondition => Json(new { metar.Airport, metar.RunwayConditions }),
-            MetarType.ReadableReport => Json(new { metar.Airport, metar.ReadableReport }),
-            MetarType.AdditionalInformation => Json(new { metar.Airport, metar.AdditionalInformation }),
-            _ => Json("") //You should not be able to get here
-        };
+        private JsonResult GetMetarType(MetarSharp.Metar metar, MetarType metarType) =>
+            metarType switch
+            {
+                MetarType.Raw => Json(new { metar.Airport, metar.MetarRaw }),
+                MetarType.Airport => Json(new { metar.Airport }),
+                MetarType.ReportingTime => Json(metar.Airport, metar.ReportingTime),
+                MetarType.AutomatedReport => Json(new { metar.Airport, metar.IsAutomatedReport }),
+                MetarType.Wind => Json(new { metar.Airport, metar.Wind }),
+                MetarType.Visibility => Json(new { metar.Airport, metar.Visibility }),
+                MetarType.RunwayVisibility => Json(new { metar.Airport, metar.RunwayVisibilities }),
+                MetarType.Weather => Json(new { metar.Airport, metar.Weather }),
+                MetarType.Clouds => Json(new { metar.Airport, metar.Clouds }),
+                MetarType.Temperature => Json(new { metar.Airport, metar.Temperature }),
+                MetarType.Pressure => Json(new { metar.Airport, metar.Pressure }),
+                MetarType.Trends => Json(new { metar.Airport, metar.Trends }),
+                MetarType.RunwayCondition => Json(new { metar.Airport, metar.RunwayConditions }),
+                MetarType.ReadableReport => Json(new { metar.Airport, metar.ReadableReport }),
+                MetarType.AdditionalInformation
+                  => Json(new { metar.Airport, metar.AdditionalInformation }),
+                _ => Json("") //You should not be able to get here
+            };
     }
 }

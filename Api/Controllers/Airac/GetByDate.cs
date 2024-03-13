@@ -14,7 +14,7 @@
             {
                 return new JsonResult(
                     new ApiError(
-                        "Inputted date was not valid, please use an ISO9601 compliant date (20231231)"
+                        "Inputted date was not valid, please use an ISO9601 compliant date (2023_12_31)"
                     ),
                     Options.JsonOptions
                 );
