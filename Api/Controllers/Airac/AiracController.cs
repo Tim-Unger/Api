@@ -44,6 +44,14 @@
         public JsonResult GetNext() => NextAirac.Get();
 
         /// <summary>
+        /// Get the previous Airac
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("/airacs/previous")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public JsonResult GetPrevious() => PreviousAirac.Get();
+
+        /// <summary>
         /// Get a specific Airac by Ident
         /// </summary>
         /// <remarks>
