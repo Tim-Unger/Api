@@ -45,7 +45,6 @@ namespace Api.Controllers.Metar
         }
 
         [HttpGet("/metar/decode")]
-        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
         public async Task<JsonResult> GetAndDecodeBody()
         {
@@ -66,7 +65,7 @@ namespace Api.Controllers.Metar
 
                 var metarJson = GetMetar(decodedMetar);
 
-                return new JsonResult(metarJson);
+                return new JsonResult(metarJson, Options.JsonOptions);
             }
             catch
             {
