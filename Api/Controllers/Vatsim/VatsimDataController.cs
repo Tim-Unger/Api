@@ -111,11 +111,11 @@ namespace Api.Controllers
         {
             try
             {
-                var dataTask = Vatsim.GetData.GetVatsimData();
+                var dataRaw = await Vatsim.GetData.GetVatsimData();
 
-                dataTask.Wait();
+                var data = JsonSerializer.Deserialize<VatsimData>(dataRaw, new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
-                return Json(dataTask.Result, Options.JsonOptions);
+                return Json(data, Options.JsonOptions);
             }
 
             catch (Exception ex)
