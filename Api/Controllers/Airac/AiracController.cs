@@ -1,4 +1,5 @@
 ﻿using AiracGen;
+using Azure.Core;
 
 namespace Api.Controllers.Airac
 {
@@ -20,7 +21,7 @@ namespace Api.Controllers.Airac
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Airacs"
@@ -39,7 +40,8 @@ namespace Api.Controllers.Airac
         /// <returns></returns>
         [HttpGet("/airacs/all")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult GetAll() => Airacs.GetAll();
+        public JsonResult GetAll() 
+        { 
 
             return Airacs.GetAll();
         }
@@ -55,7 +57,7 @@ namespace Api.Controllers.Airac
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Current Airac"
@@ -76,7 +78,7 @@ namespace Api.Controllers.Airac
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Next Airac"
@@ -97,7 +99,7 @@ namespace Api.Controllers.Airac
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Previous Airac"
@@ -125,7 +127,7 @@ namespace Api.Controllers.Airac
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Airac by Ident"
@@ -143,7 +145,7 @@ namespace Api.Controllers.Airac
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Airac by Ident"
@@ -163,7 +165,7 @@ namespace Api.Controllers.Airac
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Airac by Ident"
@@ -176,7 +178,7 @@ namespace Api.Controllers.Airac
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Airac by Ident"
@@ -200,7 +202,7 @@ namespace Api.Controllers.Airac
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Airacs by Year"
@@ -222,7 +224,7 @@ namespace Api.Controllers.Airac
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Airacs by Year"
@@ -246,7 +248,7 @@ namespace Api.Controllers.Airac
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Airacs by Year"
@@ -267,7 +269,7 @@ namespace Api.Controllers.Airac
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Airacs by Year"
@@ -282,7 +284,7 @@ namespace Api.Controllers.Airac
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Airacs by Year"
@@ -315,7 +317,7 @@ namespace Api.Controllers.Airac
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Airac by Date"
@@ -349,7 +351,7 @@ namespace Api.Controllers.Airac
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Airac by Date"
