@@ -2,17 +2,30 @@
 
 namespace Api.Controllers.DAtis
 {
-	[ApiController]
-	[Route("api")]
-	public class DatisController : Controller
-	{
-		/// <summary>
-		/// Get all supported D-ATIS Airports
-		/// </summary>
-		/// <returns></returns>
-		[HttpGet("/datis/airports")]
-		[ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-		public string GetAirports() => string.Join(Environment.NewLine, DAtisAirports);
+    [ApiController]
+    [Route("api")]
+    public class DatisController : Controller
+    {
+        /// <summary>
+        /// Get all supported D-ATIS Airports
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("/datis/airports")]
+        [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
+        public string GetAirports()
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Connection.RemoteIpAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "D-ATIS Airports",
+                }
+            );
+
+            return string.Join(Environment.NewLine, DAtisAirports);
+        }
 
         /// <summary>
         /// Get the D-Atis for an American Airport
@@ -26,6 +39,20 @@ namespace Api.Controllers.DAtis
         /// <returns></returns>
         [HttpGet("/datis/{icao}/{textOnly?}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult Get(string icao, string? textOnly = null) => Datis.Get(icao, textOnly);
-	}
+        public JsonResult Get(string icao, string? textOnly = null)
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Connection.RemoteIpAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "D-ATIS for Airport",
+                    Params = icao
+                }
+            );
+
+            return Datis.Get(icao, textOnly);
+        }
+    }
 }

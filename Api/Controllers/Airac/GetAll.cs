@@ -2,7 +2,7 @@
 
 namespace Api.Controllers.Airac
 {
-    internal class Airacs
+    internal partial class Airacs
     {
         //Gets all Airacs
         internal static JsonResult GetAll() => new(GetAiracList(), Options.JsonOptions);

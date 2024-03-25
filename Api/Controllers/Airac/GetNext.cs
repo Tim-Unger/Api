@@ -2,8 +2,8 @@
 
 namespace Api.Controllers.Airac
 {
-    internal class NextAirac
+    internal partial class Airacs
     {
-        internal static JsonResult Get() => new(AiracGenerator.GenerateNext(), Options.JsonOptions);
+        internal static JsonResult GetNext() => new(AiracGenerator.GenerateNext(), Options.JsonOptions);
     }
 }
