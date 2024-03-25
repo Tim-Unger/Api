@@ -2,8 +2,8 @@
 
 namespace Api.Controllers.Airac
 {
-    internal class CurrentAirac
+    internal partial class Airacs
     {
-        internal static JsonResult Get() => new JsonResult(AiracGenerator.GenerateCurrent()); //Exceptions are handled in the function
+        internal static JsonResult GetCurrent() => new(AiracGenerator.GenerateCurrent()); //Exceptions are handled in the function
     }
 }

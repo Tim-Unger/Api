@@ -10,7 +10,20 @@
         /// <returns></returns>
         [HttpGet("/betriebsrichtung")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult Get() => Json(GetBetriebsrichtung.Get(), Options.JsonOptions);
+        public JsonResult Get()
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Betriebsrichtung",
+                }
+            );
+
+            return Json(GetBetriebsrichtung.Get(), Options.JsonOptions);
+        }
 
         /// <summary>
         /// Get the current landing direction at EDDF as an int (RWY-direction only, nothing else)
@@ -18,7 +31,20 @@
         /// <returns></returns>
         [HttpGet("/betriebsrichtung/raw")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public string GetRaw() => GetBetriebsrichtung.Get().Richtung;
+        public string GetRaw()
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Betriebsrichtung Raw",
+                }
+            );
+
+            return GetBetriebsrichtung.Get().Richtung;
+        }
 
         /// <summary>
         /// Get the current landing direction and the forecast for the next days decoded
@@ -26,10 +52,19 @@
         /// <returns></returns>
         [HttpGet("/betriebsrichtung/decode")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public string GetDecoded() => BetriebsrichtungDecoder.Decode(GetBetriebsrichtung.Get());
+        public string GetDecoded()
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Betriebsrichtung decoded",
+                }
+            );
 
-        //[HttpGet("/betriebsrichtung/graphic")]
-        //[ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        //public string GetGraphic() => BetriebsrichtungDrawer.Draw(GetBetriebsrichtung.Get());
+            return BetriebsrichtungDecoder.Decode(GetBetriebsrichtung.Get());
+        }
     }
 }

@@ -4,24 +4,27 @@ using System.Net.NetworkInformation;
 using static Json.Json;
 using System.Data;
 using Server = Api.Controllers.Vatsim.Server;
+using Api.Controllers.Airac;
+using Api;
 
 namespace Api.Controllers
 {
     [Route("api")]
     public class VatsimController : Microsoft.AspNetCore.Mvc.Controller
     {
-        private static readonly List<string> _allowedTypes = new()
-        {
-            "general",
-            "pilots",
-            "controllers",
-            "atis",
-            "servers",
-            "prefiles",
-            "facilities",
-            "ratings",
-            "pilot_ratings"
-        };
+        private static readonly List<string> _allowedTypes =
+            new()
+            {
+                "general",
+                "pilots",
+                "controllers",
+                "atis",
+                "servers",
+                "prefiles",
+                "facilities",
+                "ratings",
+                "pilot_ratings"
+            };
 
         /// <summary>
         /// Gets the Vatsim-Status
@@ -45,9 +48,12 @@ namespace Api.Controllers
 
             var servers = await client.GetStringAsync(serverLinks[randomServerIndex]);
 
-            var vatsimServer = JsonSerializer.Deserialize<List<VatsimServer>>(servers) ?? throw new Exception();
+            var vatsimServer =
+                JsonSerializer.Deserialize<List<VatsimServer>>(servers) ?? throw new Exception();
 
-            var vatsimData = await client.GetFromJsonAsync<Json.Json.VatsimData>("https://data.vatsim.net/v3/vatsim-data.json");
+            var vatsimData = await client.GetFromJsonAsync<Json.Json.VatsimData>(
+                "https://data.vatsim.net/v3/vatsim-data.json"
+            );
 
             if (vatsimData == null)
             {
@@ -62,10 +68,10 @@ namespace Api.Controllers
 
             //Counts how often each server appears and then sorts them by largest first
             var countServers = serverCountList
-                                .GroupBy(x => x)
-                                .Select(x => new { Value = x.Key, Count = x.Count() })
-                                .OrderByDescending(x => x.Count)
-                                .ToList();
+                .GroupBy(x => x)
+                .Select(x => new { Value = x.Key, Count = x.Count() })
+                .OrderByDescending(x => x.Count)
+                .ToList();
 
             var serversList = new List<Server>
             {
@@ -83,12 +89,27 @@ namespace Api.Controllers
 
                 var isOperational = pingServerReply.Status == IPStatus.Success;
 
-                var newServer = new Vatsim.Server { Name = server.name, Operational = isOperational, Connections = serverCountList.Count };
+                var newServer = new Vatsim.Server
+                {
+                    Name = server.name,
+                    Operational = isOperational,
+                    Connections = serverCountList.Count
+                };
                 serversList.Add(newServer);
             }
 
             //Adds the count of each server to the list (can't ping these servers themselves since the automatic server exists)
-            countServers.ForEach(x => serversList.Add(new Server() { Connections = x.Count, Name = x.Value, Operational = true }));
+            countServers.ForEach(
+                x =>
+                    serversList.Add(
+                        new Server()
+                        {
+                            Connections = x.Count,
+                            Name = x.Value,
+                            Operational = true
+                        }
+                    )
+            );
 
             return Json(serversList, Options.JsonOptions);
         }
@@ -113,11 +134,26 @@ namespace Api.Controllers
             {
                 var dataRaw = await Vatsim.GetData.GetVatsimData();
 
-                var data = JsonSerializer.Deserialize<VatsimData>(dataRaw, new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+                var data = JsonSerializer.Deserialize<VatsimData>(
+                    dataRaw,
+                    new JsonSerializerOptions()
+                    {
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    }
+                );
+
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        RequestStatus = Logger.RequestStatus.Success,
+                        ApiRequestType = "GET",
+                        RequestName = "Vatsim Data"
+                    }
+                );
 
                 return Json(data, Options.JsonOptions);
             }
-
             catch (Exception ex)
             {
                 return Json(ex.Message, Options.JsonOptions);
@@ -127,18 +163,17 @@ namespace Api.Controllers
         [HttpGet("/vatsim/data/{type}/{callsign?}/{traffictype?}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [EnableCors("AllowOrigin")]
-        public JsonResult GetData(
-            string type,
-            string? callsign = null,
-            string? trafficType = null
-        )
+        public JsonResult GetData(string type, string? callsign = null, string? trafficType = null)
         {
             var options = new JsonSerializerOptions() { WriteIndented = true };
             var convertedType = type.ToLower();
 
             if (!_allowedTypes.Any(x => x == convertedType))
             {
-                return Json("Use Use on of the following types: general, pilots, controllers, atis, servers, prefiles, facilities, ratings, pilot_ratings", Options.JsonOptions);
+                return Json(
+                    "Use Use on of the following types: general, pilots, controllers, atis, servers, prefiles, facilities, ratings, pilot_ratings",
+                    Options.JsonOptions
+                );
             }
 
             string? vatsimData = null;
@@ -171,32 +206,44 @@ namespace Api.Controllers
                     "prefiles" => Json(data.Prefiles, Options.JsonOptions),
                     "facilities" => Json(data.Facilities, Options.JsonOptions),
                     "ratings" => Json(data.Ratings, Options.JsonOptions),
-                    "pilot_ratings" or "pilotratings" => Json(data.PilotRatings, Options.JsonOptions),
+                    "pilot_ratings"
+                    or "pilotratings"
+                      => Json(data.PilotRatings, Options.JsonOptions),
                     _ => Json("Type not recognized", Options.JsonOptions)
                 };
             }
 
             var allowedTypesWithCallsign = new string[]
-                {
-                    "pilots",
-                    "controllers",
-                    "atis",
-                    "prefiles"
-                };
+            {
+                "pilots",
+                "controllers",
+                "atis",
+                "prefiles"
+            };
 
             if (!allowedTypesWithCallsign.Any(x => x == convertedType))
             {
-                return Json("You can only use the callsign-option with the following types: pilots, controllers, atis, prefiles", Options.JsonOptions);
+                return Json(
+                    "You can only use the callsign-option with the following types: pilots, controllers, atis, prefiles",
+                    Options.JsonOptions
+                );
             }
 
             if (int.TryParse(callsign, out var cid))
             {
                 return convertedType switch
                 {
-                    "pilots" => Json(data.Pilots.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
-                    "controllers" => Json(data.Controllers.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
-                    "atis" => Json(data.Atis.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
-                    "prefiles" => Json(data.Prefiles.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
+                    "pilots"
+                      => Json(data.Pilots.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
+                    "controllers"
+                      => Json(
+                          data.Controllers.Where(x => x.cid == cid).ToList(),
+                          Options.JsonOptions
+                      ),
+                    "atis"
+                      => Json(data.Atis.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
+                    "prefiles"
+                      => Json(data.Prefiles.Where(x => x.cid == cid).ToList(), Options.JsonOptions),
                     _ => Json("", Options.JsonOptions)
                 };
             }
@@ -207,10 +254,26 @@ namespace Api.Controllers
 
                 return convertedType switch
                 {
-                    "pilots" => Json(data.Pilots.Where(x => x.callsign == convertedCallsign).ToString(), Options.JsonOptions),
-                    "controllers" => Json(data.Controllers.Where(x => x.callsign == convertedCallsign).ToString(), Options.JsonOptions),
-                    "atis" => Json(data.Atis.Where(x => x.callsign == convertedCallsign).ToString(), Options.JsonOptions),
-                    "prefiles" => Json(data.Prefiles.Where(x => x.callsign == convertedCallsign).ToString(), Options.JsonOptions),
+                    "pilots"
+                      => Json(
+                          data.Pilots.Where(x => x.callsign == convertedCallsign).ToString(),
+                          Options.JsonOptions
+                      ),
+                    "controllers"
+                      => Json(
+                          data.Controllers.Where(x => x.callsign == convertedCallsign).ToString(),
+                          Options.JsonOptions
+                      ),
+                    "atis"
+                      => Json(
+                          data.Atis.Where(x => x.callsign == convertedCallsign).ToString(),
+                          Options.JsonOptions
+                      ),
+                    "prefiles"
+                      => Json(
+                          data.Prefiles.Where(x => x.callsign == convertedCallsign).ToString(),
+                          Options.JsonOptions
+                      ),
                     _ => Json("", Options.JsonOptions)
                 };
             }
@@ -222,11 +285,9 @@ namespace Api.Controllers
             {
                 if (convertedType == "controllers")
                 {
-                    var allControllers =
-                        data.Controllers.Where(
-                            x => x.callsign.ToLower()
-                            .StartsWith(callsign.ToLower()))
-                            .ToList();
+                    var allControllers = data.Controllers
+                        .Where(x => x.callsign.ToLower().StartsWith(callsign.ToLower()))
+                        .ToList();
 
                     if (allControllers.Count == 0)
                     {
@@ -236,18 +297,17 @@ namespace Api.Controllers
                     return Json(allControllers, Options.JsonOptions);
                 }
 
-                var allowedTrafficTypes = new string[]
-                {
-                "inbounds",
-                "outbounds",
-                };
+                var allowedTrafficTypes = new string[] { "inbounds", "outbounds", };
 
                 if (trafficType == null)
                 {
                     var allPilotsList = data.Pilots
                         .Where(x => x.flight_plan != null)
-                        .Where(x => x.flight_plan.departure.StartsWith(callsign.ToLower())
-                            || x.flight_plan.arrival.StartsWith(callsign.ToLower()))
+                        .Where(
+                            x =>
+                                x.flight_plan.departure.StartsWith(callsign.ToLower())
+                                || x.flight_plan.arrival.StartsWith(callsign.ToLower())
+                        )
                         .ToList();
 
                     if (allPilotsList.Count == 0)
@@ -263,7 +323,8 @@ namespace Api.Controllers
 
                 if (convertedTrafficType == "inbounds")
                 {
-                    allPilots = data.Pilots.Where(x => x.flight_plan != null)
+                    allPilots = data.Pilots
+                        .Where(x => x.flight_plan != null)
                         .Where(x => x.flight_plan.arrival.ToLower().StartsWith(callsign.ToLower()))
                         .ToList();
 
@@ -275,7 +336,10 @@ namespace Api.Controllers
                     return Json(allPilots, Options.JsonOptions);
                 }
 
-                allPilots = data.Pilots.Where(x => x.flight_plan != null).Where(x => x.flight_plan.departure.ToLower().StartsWith(callsign.ToLower())).ToList();
+                allPilots = data.Pilots
+                    .Where(x => x.flight_plan != null)
+                    .Where(x => x.flight_plan.departure.ToLower().StartsWith(callsign.ToLower()))
+                    .ToList();
 
                 if (allPilots.Count == 0)
                 {

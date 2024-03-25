@@ -5,9 +5,8 @@ namespace Api.Controllers
     [Route("api")]
     public class AirlinesController : Controller
     {
-        internal static readonly Regex _searchRegex = new(
-            @"(?>(name|iata|icao|callsign|country|active)=(\w*))*(?:(?>&|$))"
-        );
+        internal static readonly Regex _searchRegex =
+            new(@"(?>(name|iata|icao|callsign|country|active)=(\w*))*(?:(?>&|$))");
 
         internal class Search
         {
@@ -26,7 +25,20 @@ namespace Api.Controllers
         [HttpGet("/airlines")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
-        public JsonResult GetAll() => Json(AirlinesJson.ReadJson(), Options.JsonOptions);
+        public JsonResult GetAll()
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Airlines"
+                }
+            );
+
+            return Json(AirlinesJson.ReadJson(), Options.JsonOptions);
+        }
 
         /// <summary>
         /// Get Airlines that match the defined Search Parameters
@@ -39,15 +51,29 @@ namespace Api.Controllers
         /// callsign={Callsign},
         /// country={Country},
         /// You can combine searches with an &amp;
-        /// 
+        ///
         /// This will return a separate JSON Search Result for each Parameter, if you want to only get one JSON-Class, please use MatchAny
-        /// 
+        ///
         /// </remarks>
         /// <returns></returns>
         [HttpGet("/airlines/{search}")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
-        public JsonResult Get(string search) => Searches.Get(search);
+        public JsonResult Get(string search)
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Airlines with Search",
+                    Params = search
+                }
+            );
+
+            return Searches.Get(search);
+        }
 
         /// <summary>
         /// Get Airlines that Match All defined Search Parameters
@@ -65,7 +91,21 @@ namespace Api.Controllers
         [HttpGet("/airlines/{search}/matchall")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
-        public JsonResult GetMultipleMatchAll(string search) => GetSearchesMultipleParameters.Get(search, true);
+        public JsonResult GetMultipleMatchAll(string search)
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Airlines with search, match all",
+                    Params = search
+                }
+            );
+
+            return GetSearchesMultipleParameters.Get(search, true);
+        }
 
         /// <summary>
         /// Get Airlines that Match Any defined Search Parameter
@@ -86,6 +126,20 @@ namespace Api.Controllers
         [HttpGet("/airlines/{search}/matchany")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
-        public JsonResult GetMultipleMatchAny(string search) => GetSearchesMultipleParameters.Get(search, false);
+        public JsonResult GetMultipleMatchAny(string search) 
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Airlines with search, match any",
+                    Params = search
+                }
+            );
+
+            return GetSearchesMultipleParameters.Get(search, false);
+        }
     }
 }
