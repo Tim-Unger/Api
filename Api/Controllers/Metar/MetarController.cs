@@ -41,7 +41,7 @@ namespace Api.Controllers.Metar
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Raw Metar(s)",
@@ -55,7 +55,7 @@ namespace Api.Controllers.Metar
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Raw Metar(s)",
@@ -81,7 +81,7 @@ namespace Api.Controllers.Metar
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Decode Metar from body",
@@ -100,7 +100,7 @@ namespace Api.Controllers.Metar
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Success,
                         ApiRequestType = "GET",
                         RequestName = "Decode Metar from body",
@@ -115,7 +115,7 @@ namespace Api.Controllers.Metar
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Decode Metar from body",
@@ -146,7 +146,7 @@ namespace Api.Controllers.Metar
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Decode Metar(s)",
@@ -168,7 +168,7 @@ namespace Api.Controllers.Metar
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Decode Metar(s)",
@@ -223,7 +223,7 @@ namespace Api.Controllers.Metar
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Decode Type",
@@ -262,7 +262,7 @@ namespace Api.Controllers.Metar
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Decode Type",
@@ -288,7 +288,7 @@ namespace Api.Controllers.Metar
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Decode Type",
@@ -313,7 +313,7 @@ namespace Api.Controllers.Metar
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Metar Readable Report",
@@ -329,7 +329,7 @@ namespace Api.Controllers.Metar
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Metar Readable Report",
@@ -343,7 +343,7 @@ namespace Api.Controllers.Metar
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Metar Readable Report",

@@ -145,7 +145,7 @@ namespace Api.Controllers
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = HttpContext.Current.Request.UserHostAddress,
+                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                         RequestStatus = Logger.RequestStatus.Success,
                         ApiRequestType = "GET",
                         RequestName = "Vatsim Data"

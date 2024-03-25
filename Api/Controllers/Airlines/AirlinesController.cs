@@ -30,7 +30,7 @@ namespace Api.Controllers
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Airlines"
@@ -64,7 +64,7 @@ namespace Api.Controllers
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Airlines with Search",
@@ -96,7 +96,7 @@ namespace Api.Controllers
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Airlines with search, match all",
@@ -131,7 +131,7 @@ namespace Api.Controllers
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = HttpContext.Current.Request.UserHostAddress,
+                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Airlines with search, match any",
