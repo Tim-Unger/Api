@@ -12,6 +12,16 @@
 
             var dataSources = await client.GetFromJsonAsync<string[]>("https://raw.githubusercontent.com/Tim-Unger/Api/main/Api/Data/datasources.json");
 
+            Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Success,
+                        ApiRequestType = "GET",
+                        RequestName = "vACDM Data Sources",
+                    }
+                );
+
             return Json(dataSources);
         }
         

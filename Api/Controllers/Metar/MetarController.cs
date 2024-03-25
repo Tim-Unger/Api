@@ -38,8 +38,30 @@ namespace Api.Controllers.Metar
         {
             if (icao == null || icao.Length < 1 || icao.Length > 4)
             {
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Error,
+                        ApiRequestType = "GET",
+                        RequestName = "Raw Metar(s)",
+                        Params = icao
+                    }
+                );
+
                 return "ICAO code provided is invalid or was not given";
             }
+
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Connection.RemoteIpAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Raw Metar(s)",
+                    Params = icao
+                }
+            );
 
             return string.Join(Environment.NewLine, DownloadMetar.FromVatsimMultiple(icao));
         }
@@ -56,6 +78,16 @@ namespace Api.Controllers.Metar
 
             if (body is null || string.IsNullOrWhiteSpace(body))
             {
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Error,
+                        ApiRequestType = "GET",
+                        RequestName = "Decode Metar from body",
+                    }
+                );
+
                 return Json(new ApiError("Please provide a body"), Options.JsonOptions);
             }
 
@@ -65,10 +97,32 @@ namespace Api.Controllers.Metar
 
                 var metarJson = GetMetar(decodedMetar);
 
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Success,
+                        ApiRequestType = "GET",
+                        RequestName = "Decode Metar from body",
+                        Params = body
+                    }
+                );
+
                 return new JsonResult(metarJson, Options.JsonOptions);
             }
             catch
             {
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Error,
+                        ApiRequestType = "GET",
+                        RequestName = "Decode Metar from body",
+                        Params = body
+                    }
+                );
+
                 return Json(new ApiError("Please provide a valid metar"), Options.JsonOptions);
             }
         }
@@ -89,6 +143,17 @@ namespace Api.Controllers.Metar
         {
             if (icao == null)
             {
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Error,
+                        ApiRequestType = "GET",
+                        RequestName = "Decode Metar(s)",
+                        Params = icao
+                    }
+                );
+
                 return Json(new ApiError("No ICAO provided"), Options.JsonOptions);
             }
 
@@ -99,6 +164,17 @@ namespace Api.Controllers.Metar
 
             //Since GetMetar returns an object the Value of each item needs to be selected)
             var resultsFiltered = jsonResults.Select(x => x.Value);
+
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Connection.RemoteIpAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Decode Metar(s)",
+                    Params = icao
+                }
+            );
 
             return Json(resultsFiltered, Options.JsonOptions);
         }
@@ -144,6 +220,17 @@ namespace Api.Controllers.Metar
         {
             if (icao == null)
             {
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Error,
+                        ApiRequestType = "GET",
+                        RequestName = "Decode Type",
+                        Params = $"{icao}, {type}"
+                    }
+                );
+
                 return Json("No ICAO provided");
             }
 
@@ -172,6 +259,17 @@ namespace Api.Controllers.Metar
 
             if (metarType == MetarType.Error)
             {
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Error,
+                        ApiRequestType = "GET",
+                        RequestName = "Decode Type",
+                        Params = $"{icao}, {type}"
+                    }
+                );
+
                 return Json(
                     new ApiError("Metar Type was not valid or not given"),
                     Options.JsonOptions
@@ -187,6 +285,17 @@ namespace Api.Controllers.Metar
             metars.ForEach(x => jsonResults.Add(GetMetarType(x, metarType)));
             var resultsFiltered = jsonResults.Select(x => x.Value);
 
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Connection.RemoteIpAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Decode Type",
+                    Params = $"{icao}, {type}"
+                }
+            );
+
             return Json(resultsFiltered, Options.JsonOptions);
         }
 
@@ -201,13 +310,46 @@ namespace Api.Controllers.Metar
         {
             if (icao == null)
             {
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Error,
+                        ApiRequestType = "GET",
+                        RequestName = "Metar Readable Report",
+                        Params = icao
+                    }
+                );
+
                 return "No ICAO provided";
             }
 
             if (icao.Length != 4)
             {
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Error,
+                        ApiRequestType = "GET",
+                        RequestName = "Metar Readable Report",
+                        Params = icao
+                    }
+                );
+
                 return "ICAO Length must be 4 letters";
             }
+
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Connection.RemoteIpAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Metar Readable Report",
+                    Params = icao
+                }
+            );
 
             return ParseMetar.FromString(DownloadMetar.FromVatsimSingle(icao)).ReadableReport ?? "";
         }

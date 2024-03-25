@@ -1,10 +1,4 @@
-﻿using CsvHelper;
-using Microsoft.JSInterop.Implementation;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
-
-namespace Api.Controllers.Airports
+﻿namespace Api.Controllers.Airports
 {
     public class AirportsController : Controller
     {
@@ -45,7 +39,20 @@ namespace Api.Controllers.Airports
         [HttpGet("/airports")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
-        public JsonResult GetAll() => Json(Airports.Read(), Options.JsonOptions);
+        public JsonResult GetAll()
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Connection.RemoteIpAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Airports"
+                }
+            );
+
+            return Json(Airports.Read(), Options.JsonOptions);
+        }
 
         //TODO SearchParameters
         /// <summary>
@@ -60,10 +67,38 @@ namespace Api.Controllers.Airports
         {
             if (icao.Length != 4)
             {
-                return Json(new ApiError("Please provide a four letter ICAO Code"), Options.JsonOptions);
+                Logger.Log(
+                    new Logger.LogEntry()
+                    {
+                        IPAddress = HttpContext.Connection.RemoteIpAddress,
+                        RequestStatus = Logger.RequestStatus.Error,
+                        ApiRequestType = "GET",
+                        RequestName = "Airport by ICAO",
+                        Params = icao
+                    }
+                );
+
+                return Json(
+                    new ApiError("Please provide a four letter ICAO Code"),
+                    Options.JsonOptions
+                );
             }
 
-            return Json(Airports.Read().FirstOrDefault(x => x.Icao == icao.ToUpper()), Options.JsonOptions);
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Connection.RemoteIpAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Airport by ICAO",
+                    Params = icao
+                }
+            );
+
+            return Json(
+                Airports.Read().FirstOrDefault(x => x.Icao == icao.ToUpper()),
+                Options.JsonOptions
+            );
         }
 
         /// <summary>
@@ -78,6 +113,16 @@ namespace Api.Controllers.Airports
         [Produces("application/json")]
         public JsonResult GetIcaoAirports()
         {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Connection.RemoteIpAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Commercial Airports",
+                }
+            );
+
             return Json(
                 Airports
                     .Read()
@@ -99,6 +144,19 @@ namespace Api.Controllers.Airports
         [HttpGet("/airports/count")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
         [Produces("application/json")]
-        public int GetAirportCount() => Airports.Read().Count;
+        public int GetAirportCount()
+        {
+            Logger.Log(
+                new Logger.LogEntry()
+                {
+                    IPAddress = HttpContext.Connection.RemoteIpAddress,
+                    RequestStatus = Logger.RequestStatus.Success,
+                    ApiRequestType = "GET",
+                    RequestName = "Airport count",
+                }
+            );
+
+            return Airports.Read().Count;
+        }
     }
 }
