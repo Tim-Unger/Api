@@ -44,7 +44,7 @@
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                    Request = Request,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Airports"
@@ -70,7 +70,7 @@
                 Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                        Request = Request,
                         RequestStatus = Logger.RequestStatus.Error,
                         ApiRequestType = "GET",
                         RequestName = "Airport by ICAO",
@@ -87,7 +87,7 @@
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                    Request = Request,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Airport by ICAO",
@@ -116,7 +116,7 @@
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                    Request = Request,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Commercial Airports",
@@ -149,7 +149,7 @@
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                    Request = Request,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Airport count",

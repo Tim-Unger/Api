@@ -13,7 +13,7 @@ namespace Api
 
         public class LogEntry
         {
-            public IPAddress? IPAddress { get; set; }
+            public HttpRequest? Request { get; set; }
 
             public RequestStatus RequestStatus { get; set; }
 
@@ -28,7 +28,7 @@ namespace Api
         {
             var now = DateTime.UtcNow;
 
-            var ip = entry.IPAddress?.ToString() ?? "Unknow Host";
+            var ip = entry.Request?.Headers["X-Forwarded-For"].ToString() ?? "Unknown Host";
 
             var status = entry.RequestStatus.ToString().ToUpper();
 

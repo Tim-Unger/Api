@@ -15,7 +15,7 @@
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                    Request = Request,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Betriebsrichtung",
@@ -36,7 +36,7 @@
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                    Request = Request,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Betriebsrichtung Raw",
@@ -57,7 +57,7 @@
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                    Request = Request,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "Betriebsrichtung decoded",
