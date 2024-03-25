@@ -28,7 +28,7 @@ namespace Api
         {
             var now = DateTime.UtcNow;
 
-            var ip = entry.IPAddress.ToString() ?? "Unknow Host";
+            var ip = entry.IPAddress?.ToString() ?? "Unknow Host";
 
             var status = entry.RequestStatus.ToString().ToUpper();
 

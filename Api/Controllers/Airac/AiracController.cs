@@ -39,17 +39,7 @@ namespace Api.Controllers.Airac
         /// <returns></returns>
         [HttpGet("/airacs/all")]
         [ResponseCache(VaryByHeader = "User-Agent", Duration = 30)]
-        public JsonResult GetAll()
-        {
-            Logger.Log(
-                new Logger.LogEntry()
-                {
-                    IPAddress = Request.HttpContext.Current.Request.UserHostAddress,
-                    RequestStatus = Logger.RequestStatus.Success,
-                    ApiRequestType = "GET",
-                    RequestName = "All Airacs"
-                }
-            );
+        public JsonResult GetAll() => Airacs.GetAll();
 
             return Airacs.GetAll();
         }
