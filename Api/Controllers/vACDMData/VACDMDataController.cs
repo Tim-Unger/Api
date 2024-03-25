@@ -15,7 +15,7 @@
             Logger.Log(
                     new Logger.LogEntry()
                     {
-                        IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                        Request = Request,
                         RequestStatus = Logger.RequestStatus.Success,
                         ApiRequestType = "GET",
                         RequestName = "vACDM Data Sources",

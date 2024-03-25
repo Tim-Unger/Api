@@ -17,7 +17,7 @@ namespace Api.Controllers.DAtis
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                    Request = Request,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "D-ATIS Airports",
@@ -44,7 +44,7 @@ namespace Api.Controllers.DAtis
             Logger.Log(
                 new Logger.LogEntry()
                 {
-                    IPAddress = Request.HttpContext.Connection.RemoteIpAddress,
+                    Request = Request,
                     RequestStatus = Logger.RequestStatus.Success,
                     ApiRequestType = "GET",
                     RequestName = "D-ATIS for Airport",
