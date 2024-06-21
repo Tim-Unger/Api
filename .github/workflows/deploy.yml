@@ -12,8 +12,9 @@ jobs:
       run: docker build . -t timunger/api:latest
       
     - name: Log into Docker Hub
-      uses: docker/login-action@v2
+      uses: docker/login-action@v3
       with:
+        registry: git.tim-u.me
         username: tim
         password: ${{ secrets.GITEA_PASSWORD }}
 
