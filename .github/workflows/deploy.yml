@@ -11,7 +11,7 @@ jobs:
     - name: Build the Docker image
       run: docker build . -t tim/api:latest
       
-    - name: Log into Docker Hub
+    - name: Log into Gitea
       uses: docker/login-action@v3
       with:
         registry: git.tim-u.me
@@ -19,4 +19,4 @@ jobs:
         password: ${{ secrets.GITEA_PASSWORD }}
 
     - name: Push the images to Docker Hub
-      run: docker push git.tim-u.me/tim/api
+      run: docker push tim/api
