@@ -14,8 +14,8 @@ jobs:
     - name: Log into Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        username: ${{ tim }}
+        password: ${{ secrets.GITEA_PASSWORD }}
 
     - name: Push the images to Docker Hub
-      run: docker push timunger/api
+      run: docker push git.tim-u.me/tim/api
